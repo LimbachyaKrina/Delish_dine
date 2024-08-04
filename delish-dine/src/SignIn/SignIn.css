@@ -1,0 +1,140 @@
+@import url("https://fonts.googleapis.com/css?family=Numans");
+
+html,
+body {
+  font-family: "Numans", sans-serif;
+}
+
+#myVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.container {
+  margin-top: 100px;
+  height: 100%;
+  align-content: center;
+  /* border: 2px solid black; */
+}
+
+.card {
+  height: 460px;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 400px;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  
+}
+
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.card-header h3 {
+  color: white;
+}
+
+
+/* .google_icon{
+  margin-left: 60px;
+  margin-bottom: 25px;
+}
+
+.facebook-button{
+  padding-left: 56px;
+  width: 500px;
+} */
+
+
+.btn-google, .btn-facebook {
+  width: 80%;
+  margin: 5px 0;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-google {
+  background-color: #4285F4;
+  color: white;
+}
+
+.btn-facebook {
+  background-color: #3b5998;
+  color: white;
+}
+
+.btn-google i, .btn-facebook i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.btn-google:hover, .btn-facebook:hover {
+  opacity: 0.9;
+}
+
+.input-group-prepend span {
+  width: 50px;
+  background-color: rgb(181, 255, 128);
+  color: black;
+  border: 0 !important;
+}
+
+input:focus {
+  outline: 0 0 0 0 !important;
+  box-shadow: 0 0 0 0 !important;
+}
+
+.remember {
+  color: white;
+}
+
+.remember input {
+  width: 20px;
+  height: 20px;
+  margin-left: 15px;
+  margin-right: 5px;
+}
+
+.login_btn {
+  color: black;
+  background-color: rgb(181, 255, 128);
+  width: 100px;
+}
+
+.login_btn:hover {
+  color: black;
+  background-color: white;
+}
+
+.links {
+  color: white;
+}
+
+.links a {
+  margin-left: 4px;
+}
+
+
+.center-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-header {
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+}
