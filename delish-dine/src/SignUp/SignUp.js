@@ -41,7 +41,6 @@ export default function SignUp() {
     }
     navigate("/");
   };
-// Hi there, krina here
   return (
     <>
       <video autoPlay muted loop id="myVideo" style={{ opacity: "0.6" }}>
