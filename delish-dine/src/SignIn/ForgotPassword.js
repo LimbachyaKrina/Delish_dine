@@ -8,7 +8,7 @@ const ForgotPassword = () => {
   const [step, setStep] = useState('email');
   const [timer, setTimer] = useState(120);
   const navigate = useNavigate();
-
+// Hi i am krina
   useEffect(() => {
     let interval = null;
     if (step === 'otp' && timer > 0) {
