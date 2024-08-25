@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from "@react-oauth/google";
 import "./SignIn.css";
 
 export default function SignIn() {
@@ -10,10 +10,10 @@ export default function SignIn() {
   useEffect(() => {
     if (window.FB) {
       window.FB.init({
-        appId      : process.env.REACT_APP_FACEBOOK_APP_ID,
-        cookie     : true,
-        xfbml      : true,
-        version    : 'v16.0'
+        appId: process.env.REACT_APP_FACEBOOK_APP_ID,
+        cookie: true,
+        xfbml: true,
+        version: "v16.0",
       });
     }
   }, []);
@@ -51,26 +51,31 @@ export default function SignIn() {
       console.log(tokenResponse);
       try {
         // Get the ID token from Google
-        const userInfo = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
+        const userInfo = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+          }
+        );
         const userData = await userInfo.json();
-        
+
         // Send the ID token to your backend
         const response = await fetch("http://localhost:8000/google_login/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ google_id: userData.sub,
+          body: JSON.stringify({
+            google_id: userData.sub,
             email: userData.email,
-            name: userData.name, }), // Send the user's Google ID as the token
+            name: userData.name,
+          }), // Send the user's Google ID as the token
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log("Server response:", data);
         // Handle successful login here (e.g., store token, redirect user)
@@ -88,41 +93,46 @@ export default function SignIn() {
   });
 
   const handleFacebookLogin = () => {
-    if(window.FB){
-      window.FB.login(function(response) {
-        console.log('FB.login response:', response);
-        if (response.authResponse) {
-          console.log('Access Token:', response.authResponse.accessToken);
-          window.FB.api('/me', { fields: 'id,name,email' }, function(userInfo) {
-            console.log('User Info:', userInfo);
-            // Send data to your backend
-            fetch("http://localhost:8000/facebook_login/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ token: response.authResponse.accessToken }),
-            })
-            .then(response => response.json())
-            .then(data => {
-              console.log("Server response:", data);
-            })
-            .catch(error => console.error("Error:", error));
-          });
-        } else {
-          console.log('Login failed:', response);
-        }
-      }, {scope: 'public_profile,email'});
-    }else {
-      console.error('Facebook SDK not loaded');
+    if (window.FB) {
+      window.FB.login(
+        function (response) {
+          console.log("FB.login response:", response);
+          if (response.authResponse) {
+            console.log("Access Token:", response.authResponse.accessToken);
+            window.FB.api(
+              "/me",
+              { fields: "id,name,email" },
+              function (userInfo) {
+                console.log("User Info:", userInfo);
+                // Send data to your backend
+                fetch("http://localhost:8000/facebook_login/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    token: response.authResponse.accessToken,
+                  }),
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log("Server response:", data);
+                  })
+                  .catch((error) => console.error("Error:", error));
+              }
+            );
+          } else {
+            console.log("Login failed:", response);
+          }
+        },
+        { scope: "public_profile,email" }
+      );
+    } else {
+      console.error("Facebook SDK not loaded");
       setDisplay("");
       setAlertMessage("Facebook SDK not loaded. Please try again later.");
     }
-
-    
   };
-
-
 
   return (
     <div>
@@ -132,7 +142,7 @@ export default function SignIn() {
       <div className="container">
         <div className="d-flex justify-content-center h-100">
           <div className="card">
-            <div className="card-header" >
+            <div className="card-header">
               <h3>Login</h3>
             </div>
             <div className="card-body">
@@ -194,18 +204,30 @@ export default function SignIn() {
                 </button>
               </div>
               <div className="social-login-buttons">
-                <button onClick={() => googleLogin()} className="btn btn-google">
+                <button
+                  onClick={() => googleLogin()}
+                  className="btn btn-google"
+                >
                   <i className="fab fa-google"></i> Sign in with Google
                 </button>
-                <button onClick={handleFacebookLogin} className="btn btn-facebook">
+                <button
+                  onClick={handleFacebookLogin}
+                  className="btn btn-facebook"
+                >
                   <i className="fab fa-facebook-f"></i> Sign in with Facebook
                 </button>
               </div>
               <div className="d-flex justify-content-center links">
-                Don't have an account?<a href="/register" style={{color:"white"}}> Sign Up</a>
+                Don't have an account?
+                <a href="/register" style={{ color: "white" }}>
+                  {" "}
+                  Sign Up
+                </a>
               </div>
               <div className="d-flex justify-content-center">
-                <a href="/forgot-password" style={{color:"white"}}>Forgot Password?</a>
+                <a href="/forgot-password" style={{ color: "white" }}>
+                  Forgot Password?
+                </a>
               </div>
             </div>
           </div>
