@@ -131,7 +131,7 @@ def SignUp(request):
 
 
 
-csrf_exempt
+@csrf_exempt
 @api_view(["POST"])
 def google_login(request):
     if request.method == 'POST':
