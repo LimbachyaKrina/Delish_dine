@@ -32,10 +32,8 @@ import json
 from dotenv import load_dotenv
 
 
-
-
 def options(request, *args, **kwargs):
-    response = JsonResponse({'status': 'ok'})
+    response = JsonResponse({"status": "ok"})
     response["Access-Control-Allow-Origin"] = "http://localhost:3000"
     response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
@@ -43,12 +41,9 @@ def options(request, *args, **kwargs):
     return response
 
 
-
 db, client = connect_to_database()
 
 # Create your views here.
-
-
 
 
 @csrf_exempt
@@ -63,9 +58,11 @@ def SignIn(request):
         user = db.find_one({"username": data["username"]})
         username = user.get("username")
         password = user.get("password")
+        object_id = str(user.get("_id"))
+        print(object_id)
         if bcrypt.checkpw(data["password"].encode("utf-8"), password.encode("utf-8")):
             return JsonResponse(
-                {"message": f"Welcome {username}", "success": True}, status=200
+                {"message": f"Welcome {username}", "success": True, "id":object_id}, status=200
             )
         return JsonResponse(
             {"error": "Invalid login credentails!!", "success": False}, status=400
@@ -130,22 +127,23 @@ def SignUp(request):
     )
 
 
-
 @csrf_exempt
 @api_view(["POST"])
 def google_login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
-        google_id  = data.get('google_id')  # This is now the user's Google ID
-        email = data.get('email')
-        name = data.get('name')
+        google_id = data.get("google_id")  # This is now the user's Google ID
+        email = data.get("email")
+        name = data.get("name")
         if not google_id:
-            return JsonResponse({'success': False, 'error': 'User ID not provided'}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "User ID not provided"}, status=400
+            )
 
         try:
             # Check if the user exists in the database
             user = db.find_one({"google_id": google_id})
-            
+
             if not user:
                 # If not, create a new user
                 new_user = {
@@ -159,74 +157,96 @@ def google_login(request):
                 # Update the existing user's information
                 db.update_one(
                     {"google_id": google_id},
-                    {"$set": {
-                        "email": email,
-                        "name": name,
-                    }}
+                    {
+                        "$set": {
+                            "email": email,
+                            "name": name,
+                        }
+                    },
                 )
                 created = False
-               
 
             # Return success response
-            return JsonResponse({'success': True, 'user': {'id': google_id, 'created': created}})
+            return JsonResponse(
+                {"success": True, "user": {"created": created},"id": str(user.get("_id"))}
+            )
 
         except Exception as e:
             # Log error for debugging
             print(f"Error during Google login: {e}")
-            return JsonResponse({'success': False, 'error': 'Error during login'}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Error during login"}, status=400
+            )
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    return JsonResponse(
+        {"success": False, "error": "Invalid request method"}, status=405
+    )
 
 
 @csrf_exempt
 @api_view(["POST"])
 def facebook_login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
-            token = data.get('token')
-            
+            token = data.get("token")
+
             if not token:
-                return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
-            
+                return JsonResponse(
+                    {"success": False, "error": "No token provided"}, status=400
+                )
+
             # Validate token with Facebook API
-            url = f'https://graph.facebook.com/me?access_token={token}&fields=id,name,email'
+            url = f"https://graph.facebook.com/me?access_token={token}&fields=id,name,email"
             response = requests.get(url)
             user_info = response.json()
-            
-            if 'error' in user_info:
-                return JsonResponse({'success': False, 'error': user_info.get('error', 'Invalid token')}, status=400)
-            
-            user_id = user_info['id']
-            email = user_info.get('email', '')
-            name = user_info.get('name', '')
-            
+
+            if "error" in user_info:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": user_info.get("error", "Invalid token"),
+                    },
+                    status=400,
+                )
+
+            user_id = user_info["id"]
+            email = user_info.get("email", "")
+            name = user_info.get("name", "")
+
             # Handle user creation or update
             try:
-                user = db.find_one({'facebook_id': user_id})
-                
+                user = db.find_one({"facebook_id": user_id})
+
                 if user:
                     # User exists, update information if necessary
-                    db.update_one({'facebook_id': user_id}, {'$set': {'email': email, 'name': name}})
+                    db.update_one(
+                        {"facebook_id": user_id},
+                        {"$set": {"email": email, "name": name}},
+                    )
                 else:
                     # Create a new user
-                    db.insert_one({
-                        'facebook_id': user_id,
-                        'email': email,
-                        'name': name
-                    })
-                
-                return JsonResponse({'success': True, 'data': user_info})
-            
+                    db.insert_one(
+                        {"facebook_id": user_id, "email": email, "name": name}
+                    )
+
+                return JsonResponse({"success": True, "data": user_info,"id":str(user.get("_id"))})
+
             except Exception as e:
-                return JsonResponse({'success': False, 'error': f'Database error: {str(e)}'}, status=500)
-        
+                return JsonResponse(
+                    {"success": False, "error": f"Database error: {str(e)}"}, status=500
+                )
+
         except json.JSONDecodeError:
-            return JsonResponse({'success': False, 'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"}, status=400
+            )
         except Exception as e:
-            return JsonResponse({'success': False, 'error': f'Unexpected error: {str(e)}'}, status=500)
-    
-    return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+            return JsonResponse(
+                {"success": False, "error": f"Unexpected error: {str(e)}"}, status=500
+            )
+
+    return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
 
 
 def generate_otp():
@@ -234,63 +254,99 @@ def generate_otp():
 
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(["POST"])
 def forgot_password(request):
     # print("Email Host User:", settings.EMAIL_HOST_USER)
     # print("Email Host Password:", settings.EMAIL_HOST_PASSWORD)
-    email_host_user = os.getenv('EMAIL_HOST_USER')
-    email_host_password = os.getenv('EMAIL_HOST_PASSWORD')
+    email_host_user = os.getenv("EMAIL_HOST_USER")
+    email_host_password = os.getenv("EMAIL_HOST_PASSWORD")
     print(f"Email Host User: {email_host_user}")
     print(f"Email Host Password: {email_host_password}")
     try:
         data = request.data
-        email = data.get('email')
-        user = db.find_one({'email': email})
+        email = data.get("email")
+        user = db.find_one({"email": email})
         if user:
             otp = generate_otp()
             expiry_time = timezone.now() + timedelta(minutes=2)
             db.update_one(
-                {'_id': user['_id']},
-                {'$set': {'otp': otp, 'otp_expiry': expiry_time}}
+                {"_id": user["_id"]}, {"$set": {"otp": otp, "otp_expiry": expiry_time}}
             )
             try:
                 send_mail(
-                    'Password Reset OTP',
-                    f'Your OTP is: {otp}. It will expire in 2 minutes.',
+                    "Password Reset OTP",
+                    f"Your OTP is: {otp}. It will expire in 2 minutes.",
                     settings.EMAIL_HOST_USER,
                     [email],
                     fail_silently=False,
                 )
-                return Response({'success': True, 'message': 'OTP sent successfully'}, status=200)
+                return Response(
+                    {"success": True, "message": "OTP sent successfully"}, status=200
+                )
             except Exception as e:
                 print(f"Email sending error: {str(e)}")
-                return Response({'success': False, 'error': 'Failed to send OTP email'}, status=500)
+                return Response(
+                    {"success": False, "error": "Failed to send OTP email"}, status=500
+                )
         else:
-            return Response({'success': False, 'error': 'User not found'}, status=404)
+            return Response({"success": False, "error": "User not found"}, status=404)
     except Exception as e:
         print(f"Unexpected error in forgot_password: {str(e)}")
-        return Response({'success': False, 'error': 'An unexpected error occurred'}, status=500)
+        return Response(
+            {"success": False, "error": "An unexpected error occurred"}, status=500
+        )
 
-        
 
-
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def verify_otp(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
-        email = data.get('email')
-        otp = data.get('otp')
+        email = data.get("email")
+        otp = data.get("otp")
         print(otp, email)
         otp = int(otp)
-        user = db.find_one({'email': email})
-        if user and user.get('otp') == int(otp) and user.get('otp_expiry') > datetime.utcnow():
-            return JsonResponse({'success': True})
+        user = db.find_one({"email": email})
+        
+        if (
+            user
+            and user.get("otp") == int(otp)
+            and user.get("otp_expiry") > datetime.utcnow()
+        ):
+            return JsonResponse({"success": True,"id":str(user.get("_id"))})
         else:
-            return JsonResponse({'success': False})    
+            return JsonResponse({"success": False})
 
 
-
-
-
-
+@csrf_exempt
+@api_view(["POST"])
+def get_cart(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Test view",
+                "cart": [
+                    {
+                        "dish": "Margherita Pizza",
+                        "restaurant": "Pizza Palace",
+                        "price": 399,
+                        "quantity": 2,
+                    },
+                    {
+                        "dish": "Pasta Alfredo",
+                        "restaurant": "Italiano Bistro",
+                        "price": 299,
+                        "quantity": 1,
+                    },
+                    {
+                        "dish": "Caesar Salad",
+                        "restaurant": "Salad Stop",
+                        "price": 199,
+                        "quantity": 3,
+                    },
+                ],
+            },
+            status=200,
+        )

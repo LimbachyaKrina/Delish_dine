@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const ForgotPassword = () => {
@@ -6,6 +7,7 @@ const ForgotPassword = () => {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('email');
   const [timer, setTimer] = useState(120);
+  const navigate = useNavigate();
 // Hi i am krina
   useEffect(() => {
     let interval = null;
@@ -71,6 +73,8 @@ const ForgotPassword = () => {
       const data = await response.json();
       if (data.success) {
         // navigate('/reset-password');
+        const id = data["id"]
+        navigate("/home/"+id)
       } else {
         alert('Invalid OTP');
       }

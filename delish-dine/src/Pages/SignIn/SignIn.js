@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
+import {useNavigate} from "react-router-dom"
 import "./SignIn.css";
 
 export default function SignIn() {
+  const navigate = useNavigate()
   const [state, setState] = useState({ username: "", password: "" });
   const [display, setDisplay] = useState("none");
   const [alertMessage, setAlertMessage] = useState("");
@@ -43,7 +45,9 @@ export default function SignIn() {
       return;
     }
 
+    const id = res.id
     setState({ username: "", password: "" });
+    navigate("/home/"+id)
   };
 
   const googleLogin = useGoogleLogin({
@@ -78,7 +82,8 @@ export default function SignIn() {
 
         const data = await response.json();
         console.log("Server response:", data);
-        // Handle successful login here (e.g., store token, redirect user)
+        const id = data.id
+        navigate("/home/"+id)
       } catch (error) {
         console.error("Error during Google login:", error);
         setDisplay("");
@@ -117,6 +122,8 @@ export default function SignIn() {
                   .then((response) => response.json())
                   .then((data) => {
                     console.log("Server response:", data);
+                    const id = data.id
+                    navigate("/home/"+id)
                   })
                   .catch((error) => console.error("Error:", error));
               }
