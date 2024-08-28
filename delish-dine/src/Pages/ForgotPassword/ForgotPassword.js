@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import "./SignIn.css";
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('email');
   const [timer, setTimer] = useState(120);
-  const navigate = useNavigate();
 // Hi i am krina
   useEffect(() => {
     let interval = null;
