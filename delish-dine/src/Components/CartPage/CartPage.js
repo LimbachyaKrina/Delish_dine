@@ -5,17 +5,14 @@ import "./CartPage.css";
 const CartPage = () => {
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { username } = useParams(); // Assuming you're using react-router for route params
+  const { username } = useParams();
 
   useEffect(() => {
-    // Define an async function inside useEffect
     const fetchCartData = async () => {
       try {
-        // Encrypt the username
         setLoading(true);
         const encryptedUsername = btoa(username);
 
-        // Fetch cart data from the server with POST request
         const res = await fetch("http://localhost:8000/getCart/", {
           method: "POST",
           headers: {
@@ -38,11 +35,9 @@ const CartPage = () => {
       }
     };
 
-    // Call the async function
     fetchCartData();
   }, [username]);
 
-  // Handle quantity change
   const handleQuantityChange = (index, newQuantity) => {
     setCartData((prevCartData) => {
       const updatedCart = [...prevCartData];
@@ -51,9 +46,10 @@ const CartPage = () => {
     });
   };
 
-  // Handle dish removal
   const handleRemoveDish = (index) => {
-    setCartData((prevCartData) => prevCartData.filter((_, i) => i !== index));
+    setCartData((prevCartData) =>
+      prevCartData.filter((_, i) => i !== index)
+    );
   };
 
   if (loading) {
@@ -73,15 +69,15 @@ const CartPage = () => {
   }
 
   return (
-    <div style={{ backgroundColor: "#f2e8c6" }}>
-      <div className="cart-body mx-3">
+    <div>
+      <div className="cart-body my-4">
         <div className="heading">Your Cart</div>
         <div className="shopping-cart-wrapper">
           <table className="table is-fullwidth shopping-cart">
             <thead>
               <tr>
                 <th></th>
-                <th></th>
+                <th>Dish</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Restaurant</th>
@@ -93,10 +89,10 @@ const CartPage = () => {
               {cartData.map((item, index) => (
                 <tr className="cart-item" key={index} id={item.dish}>
                   <td>
-                    <input
-                      type="checkbox"
-                      className="cart-item-check"
-                      checked
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt={item.dish}
+                      className="dish-image"
                     />
                   </td>
                   <td className="dish" data-dish={item.dish}>
@@ -106,7 +102,6 @@ const CartPage = () => {
                   <td>
                     <input
                       className="input is-primary cart-item-qty"
-                      style={{ width: "100px" }}
                       type="number"
                       min="1"
                       value={item.quantity}
@@ -126,10 +121,9 @@ const CartPage = () => {
                   <td>
                     <a
                       className="button is-small"
-                      style={{ textDecoration: "none", color: "#952323",cursor:"pointer" }}
                       onClick={() => handleRemoveDish(index)}
                     >
-                      Remove
+                      <i class="fa-solid fa-trash-can" style={{color:"red"}}></i>
                     </a>
                   </td>
                 </tr>
