@@ -331,7 +331,7 @@ def get_cart(request):
                     {
                         "dish": "Margherita Pizza",
                         "restaurant": "Pizza Palace",
-                        "price": 399,
+                        "price": 499,
                         "quantity": 2,
                     },
                     {
