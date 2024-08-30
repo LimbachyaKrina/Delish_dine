@@ -1,1 +1,15 @@
 .env
+
+
+# Ignore Python bytecode files
+*.pyc
+
+# Ignore directories where Python stores bytecode
+__pycache__/
+
+# Optionally, ignore other Python-related files that shouldn't be tracked
+*.pyo
+*.pyd
+*.pdb
+
+
