@@ -5,7 +5,7 @@ import "./CartPage.css";
 const CartPage = () => {
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { username } = useParams();
+  const { id } = useParams();
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -36,7 +36,7 @@ const CartPage = () => {
     };
 
     fetchCartData();
-  }, [username]);
+  }, [id]);
 
   const handleQuantityChange = (index, newQuantity) => {
     setCartData((prevCartData) => {
@@ -47,9 +47,7 @@ const CartPage = () => {
   };
 
   const handleRemoveDish = (index) => {
-    setCartData((prevCartData) =>
-      prevCartData.filter((_, i) => i !== index)
-    );
+    setCartData((prevCartData) => prevCartData.filter((_, i) => i !== index));
   };
 
   if (loading) {
@@ -123,7 +121,10 @@ const CartPage = () => {
                       className="button is-small"
                       onClick={() => handleRemoveDish(index)}
                     >
-                      <i class="fa-solid fa-trash-can" style={{color:"red"}}></i>
+                      <i
+                        class="fa-solid fa-trash-can"
+                        style={{ color: "red" }}
+                      ></i>
                     </a>
                   </td>
                 </tr>
