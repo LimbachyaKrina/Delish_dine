@@ -30,6 +30,39 @@ import json
 
 
 from dotenv import load_dotenv
+from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_POST
+
+
+
+client = MongoClient('mongodb+srv://krashmeh:krish1407%3F%3F@cluster0.kesohfj.mongodb.net/')
+db = client['Test_group_project']
+restaurants_collection = db['Restaurants']
+
+
+@csrf_exempt
+@require_POST
+def book_table(request, name):
+    data = json.loads(request.body)
+    # Process the booking data and save it to the database
+    # (you'll need to implement this logic)
+    return JsonResponse({'message': 'Table booked successfully!'}, status=201)
+
+@require_GET
+def get_restaurant_by_name(request, name):
+    restaurant = restaurants_collection.find_one({"Name": {"$regex": f"^{name}$", "$options": "i"}})
+    if restaurant:
+        restaurant['_id'] = str(restaurant['_id'])
+        return JsonResponse(restaurant, safe=False)
+    else:
+        return JsonResponse({"error": "Restaurant not found"}, status=404)
+
+@require_GET
+def get_restaurants(request):
+    restaurants = list(restaurants_collection.find({}))
+    for restaurant in restaurants:
+        restaurant['_id'] = str(restaurant['_id'])
+    return JsonResponse(restaurants, safe=False)
 
 
 def options(request, *args, **kwargs):
