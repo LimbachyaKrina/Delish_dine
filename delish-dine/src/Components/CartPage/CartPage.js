@@ -11,14 +11,14 @@ const CartPage = () => {
     const fetchCartData = async () => {
       try {
         setLoading(true);
-        const encryptedUsername = btoa(username);
+        
 
         const res = await fetch("http://localhost:8000/getCart/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username: encryptedUsername }),
+          body: JSON.stringify({ id }),
         });
 
         const data = await res.json();
@@ -59,7 +59,7 @@ const CartPage = () => {
       <div className="cart-container">
         <h1 className="cart-h1">Your Cart is Empty</h1>
         <p className="cart-p">Add some delicious items to your cart!</p>
-        <a href={`/restaurant/${username}`} id="cart-btn" className="btn">
+        <a href={`/restaurants/${id}`} id="cart-btn" className="btn">
           Browse Menu
         </a>
       </div>
@@ -88,7 +88,7 @@ const CartPage = () => {
                 <tr className="cart-item" key={index} id={item.dish}>
                   <td>
                     <img
-                      src="https://via.placeholder.com/100"
+                      src={item.image}
                       alt={item.dish}
                       className="dish-image"
                     />
@@ -112,7 +112,7 @@ const CartPage = () => {
                     {item.restaurant}
                   </td>
                   <td
-                    className={`cart-item-total-${item.dish.replace(" ", "")}`}
+                    className={`cart-item-total-${item.dish}`}
                   >
                     &#8377; {item.price * item.quantity}
                   </td>

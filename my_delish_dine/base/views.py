@@ -34,10 +34,13 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
 
-
-client = MongoClient('mongodb+srv://krashmeh:krish1407%3F%3F@cluster0.kesohfj.mongodb.net/')
-db = client['Test_group_project']
-restaurants_collection = db['Restaurants']
+client = MongoClient(
+    "mongodb+srv://krashmeh:krish1407%3F%3F@cluster0.kesohfj.mongodb.net/"
+)
+db = client["Test_group_project"]
+userbase = db["userbase"]
+carts = db["carts"]
+restaurants_collection = db["Restaurants"]
 
 
 @csrf_exempt
@@ -46,22 +49,40 @@ def book_table(request, name):
     data = json.loads(request.body)
     # Process the booking data and save it to the database
     # (you'll need to implement this logic)
-    return JsonResponse({'message': 'Table booked successfully!'}, status=201)
+    return JsonResponse({"message": "Table booked successfully!"}, status=201)
+
 
 @require_GET
-def get_restaurant_by_name(request, name):
-    restaurant = restaurants_collection.find_one({"Name": {"$regex": f"^{name}$", "$options": "i"}})
+def get_restaurant_by_name(request, name, user_id):
+    cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0}) or []
+
+    if cart:
+        cart = cart["items"]
+        items = [cart_item["dish"] for cart_item in cart]
+    else:
+        items = []
+    restaurant = restaurants_collection.find_one(
+        {"Name": {"$regex": f"^{name}$", "$options": "i"}}
+    )
     if restaurant:
-        restaurant['_id'] = str(restaurant['_id'])
-        return JsonResponse(restaurant, safe=False)
+        restaurant["_id"] = str(restaurant["_id"])
+        return JsonResponse(
+            {
+                "restaurant": restaurant,
+                "items": items,
+                "message": "Fetched successfully!!!",
+            },
+            status=200,
+        )
     else:
         return JsonResponse({"error": "Restaurant not found"}, status=404)
+
 
 @require_GET
 def get_restaurants(request):
     restaurants = list(restaurants_collection.find({}))
     for restaurant in restaurants:
-        restaurant['_id'] = str(restaurant['_id'])
+        restaurant["_id"] = str(restaurant["_id"])
     return JsonResponse(restaurants, safe=False)
 
 
@@ -84,18 +105,19 @@ db, client = connect_to_database()
 def SignIn(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        if db.count_documents({"username": data["username"]}) == 0:
+        if userbase.count_documents({"username": data["username"]}) == 0:
             return JsonResponse(
                 {"error": "User does not exist!!", "success": False}, status=400
             )
-        user = db.find_one({"username": data["username"]})
+        user = userbase.find_one({"username": data["username"]})
         username = user.get("username")
         password = user.get("password")
         object_id = str(user.get("_id"))
         print(object_id)
         if bcrypt.checkpw(data["password"].encode("utf-8"), password.encode("utf-8")):
             return JsonResponse(
-                {"message": f"Welcome {username}", "success": True, "id":object_id}, status=200
+                {"message": f"Welcome {username}", "success": True, "id": object_id},
+                status=200,
             )
         return JsonResponse(
             {"error": "Invalid login credentails!!", "success": False}, status=400
@@ -108,11 +130,11 @@ def SignUp(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            if db.count_documents({"username": data["username"]}) != 0:
+            if userbase.count_documents({"username": data["username"]}) != 0:
                 return JsonResponse(
                     {"error": "Username already exists!!", "success": False}, status=400
                 )
-            if db.count_documents({"email": data["email"]}) != 0:
+            if userbase.count_documents({"email": data["email"]}) != 0:
                 return JsonResponse(
                     {"error": "Email already registered with us!!!", "success": False},
                     status=400,
@@ -142,7 +164,7 @@ def SignUp(request):
             salt = bcrypt.gensalt()
             hashed_pw = bcrypt.hashpw(enc_pass, salt)
 
-            db.insert_one(
+            userbase.insert_one(
                 {
                     "fullname": fullname,
                     "username": username,
@@ -175,7 +197,7 @@ def google_login(request):
 
         try:
             # Check if the user exists in the database
-            user = db.find_one({"google_id": google_id})
+            user = userbase.find_one({"google_id": google_id})
 
             if not user:
                 # If not, create a new user
@@ -184,11 +206,11 @@ def google_login(request):
                     "email": email,
                     "name": name,
                 }
-                db.insert_one(new_user)
+                userbase.insert_one(new_user)
                 created = True
             else:
                 # Update the existing user's information
-                db.update_one(
+                userbase.update_one(
                     {"google_id": google_id},
                     {
                         "$set": {
@@ -201,7 +223,11 @@ def google_login(request):
 
             # Return success response
             return JsonResponse(
-                {"success": True, "user": {"created": created},"id": str(user.get("_id"))}
+                {
+                    "success": True,
+                    "user": {"created": created},
+                    "id": str(user.get("_id")),
+                }
             )
 
         except Exception as e:
@@ -249,21 +275,23 @@ def facebook_login(request):
 
             # Handle user creation or update
             try:
-                user = db.find_one({"facebook_id": user_id})
+                user = userbase.find_one({"facebook_id": user_id})
 
                 if user:
                     # User exists, update information if necessary
-                    db.update_one(
+                    userbase.update_one(
                         {"facebook_id": user_id},
                         {"$set": {"email": email, "name": name}},
                     )
                 else:
                     # Create a new user
-                    db.insert_one(
+                    userbase.insert_one(
                         {"facebook_id": user_id, "email": email, "name": name}
                     )
 
-                return JsonResponse({"success": True, "data": user_info,"id":str(user.get("_id"))})
+                return JsonResponse(
+                    {"success": True, "data": user_info, "id": str(user.get("_id"))}
+                )
 
             except Exception as e:
                 return JsonResponse(
@@ -293,23 +321,25 @@ def forgot_password(request):
     # print("Email Host Password:", settings.EMAIL_HOST_PASSWORD)
     email_host_user = os.getenv("EMAIL_HOST_USER")
     email_host_password = os.getenv("EMAIL_HOST_PASSWORD")
-    print(f"Email Host User: {email_host_user}")
-    print(f"Email Host Password: {email_host_password}")
+
     try:
-        data = request.data
+        data = json.loads(request.body)
         email = data.get("email")
-        user = db.find_one({"email": email})
+        print("Email:", email)
+        user = userbase.find_one({"email": email})
+        print(f"Email Host User: {email_host_user}")
+        print(f"Email Host Password: {email_host_password}")
         if user:
             otp = generate_otp()
             expiry_time = timezone.now() + timedelta(minutes=2)
-            db.update_one(
+            userbase.update_one(
                 {"_id": user["_id"]}, {"$set": {"otp": otp, "otp_expiry": expiry_time}}
             )
             try:
                 send_mail(
                     "Password Reset OTP",
                     f"Your OTP is: {otp}. It will expire in 2 minutes.",
-                    settings.EMAIL_HOST_USER,
+                    email_host_user,
                     [email],
                     fail_silently=False,
                 )
@@ -339,14 +369,14 @@ def verify_otp(request):
         otp = data.get("otp")
         print(otp, email)
         otp = int(otp)
-        user = db.find_one({"email": email})
-        
+        user = userbase.find_one({"email": email})
+
         if (
             user
             and user.get("otp") == int(otp)
             and user.get("otp_expiry") > datetime.utcnow()
         ):
-            return JsonResponse({"success": True,"id":str(user.get("_id"))})
+            return JsonResponse({"success": True, "id": str(user.get("_id"))})
         else:
             return JsonResponse({"success": False})
 
@@ -356,11 +386,14 @@ def verify_otp(request):
 def get_cart(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        user_id = data["id"]
+        user_cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})["items"]
         return JsonResponse(
             {
                 "success": True,
                 "message": "Test view",
-                "cart": [
+                "cart": list(user_cart)
+                or [
                     {
                         "dish": "Margherita Pizza",
                         "restaurant": "Pizza Palace",
@@ -383,3 +416,40 @@ def get_cart(request):
             },
             status=200,
         )
+
+
+@csrf_exempt
+@api_view(["POST"])
+def add_dish(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            restaurant = data["name"]
+            dishName = data["dishName"]
+            price = data["price"]
+            user_id = data["id"]
+            image = data["image"]
+            cart_item = {
+                "image":image,
+                "restaurant": restaurant,
+                "dish": dishName,
+                "price": price,
+                "quantity": 1,
+            }
+            cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0}) or []
+            if cart:
+                cart = cart["items"]
+                cart.append(cart_item)
+                carts.update_one({"user_id": user_id}, {"$set": {"items": cart}})
+            else:
+                cart.append(cart_item)
+                carts.insert_one({"user_id": user_id, "items": cart, "conf_orders": []})
+            return JsonResponse(
+                {"success": True, "message": f"Added {dishName} to {user_id} cart!!!"},
+                status=200,
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"{e}"},
+                status=500,
+            )

@@ -16,18 +16,18 @@ export default function App() {
         <Route path="/" element={<SignIn />} />
         <Route path="/register" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/cart" element={<Cart />}></Route>
+        <Route path="/cart/:id" element={<Cart />}></Route>
         <Route path="/home/:id" element={<Home></Home>}></Route>
         <Route
           exact
-          path="/restaurants/:username"
+          path="/restaurants/:id"
           element={<Restaurants></Restaurants>}
         ></Route>
         <Route
-          path="/restaurants/:name/:username"
+          path="/restaurants/:name/:id"
           element={<RestaurantDetail></RestaurantDetail>}
         />
-        <Route path="/booking/:name/:username" element={<Booking></Booking>} />
+        <Route path="/booking/:name/:id" element={<Booking></Booking>} />
       </Routes>
     </BrowserRouter>
   );

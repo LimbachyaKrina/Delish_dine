@@ -6,7 +6,11 @@ from .views import (
     facebook_login,
     forgot_password,
     verify_otp,
-    get_cart,get_restaurants,get_restaurant_by_name,book_table
+    get_cart,
+    get_restaurants,
+    get_restaurant_by_name,
+    book_table,
+    add_dish,
 )
 
 # ,send_message
@@ -19,8 +23,12 @@ urlpatterns = [
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("verify-otp/", verify_otp, name="verify_otp"),
     path("getCart/", get_cart, name="get_cart"),
-    # path('SendMessage/',send_message,name="send-message")
-    path('api/restaurants/', get_restaurants, name='get_restaurants'),
-    path('api/get_restaurant_by_name/<str:name>/', get_restaurant_by_name, name='get_restaurant_by_name'),
-    path('api/book_table/<str:name>/', book_table, name='book_table'),
+    path("api/restaurants/", get_restaurants, name="get_restaurants"),
+    path(
+        "api/get_restaurant_by_name/<str:name>/<str:user_id>",
+        get_restaurant_by_name,
+        name="get_restaurant_by_name",
+    ),
+    path("api/book_table/<str:name>/", book_table, name="book_table"),
+    path("add_dish/", add_dish, name="add-dish"),
 ]
