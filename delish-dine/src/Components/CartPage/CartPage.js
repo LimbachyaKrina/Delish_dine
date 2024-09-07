@@ -11,8 +11,6 @@ const CartPage = () => {
     const fetchCartData = async () => {
       try {
         setLoading(true);
-        
-
         const res = await fetch("http://localhost:8000/getCart/", {
           method: "POST",
           headers: {
@@ -46,8 +44,40 @@ const CartPage = () => {
     });
   };
 
-  const handleRemoveDish = (index) => {
-    setCartData((prevCartData) => prevCartData.filter((_, i) => i !== index));
+  const handleRemoveDish = async (index, dish, restaurant, all = false) => {
+    try {
+      const res = await fetch("http://localhost:8000/removeDish/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, dish, restaurant, all }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.all) {
+          setCartData([]);
+          return;
+        }
+        setCartData((prevCartData) =>
+          prevCartData.filter((_, i) => i !== index)
+        );
+      }
+    } catch (error) {}
+  };
+
+  const handleClearCart = async () => {
+    await handleRemoveDish(null, null, null, true);
+  };
+
+  const handlePlaceOrder = () => {
+    alert("Order placed successfully!");
+  };
+
+  const calculateTotalPrice = () => {
+    return cartData.reduce((acc, item) => acc + item.price * item.quantity, 0);
   };
 
   if (loading) {
@@ -56,12 +86,14 @@ const CartPage = () => {
 
   if (cartData.length === 0) {
     return (
-      <div className="cart-container">
-        <h1 className="cart-h1">Your Cart is Empty</h1>
-        <p className="cart-p">Add some delicious items to your cart!</p>
-        <a href={`/restaurants/${id}`} id="cart-btn" className="btn">
-          Browse Menu
-        </a>
+      <div className="cart-body my-4">
+        <div className="cart-container">
+          <h1 className="cart-h1">Your Cart is Empty</h1>
+          <p className="cart-p">Add some delicious items to your cart!</p>
+          <a href={`/restaurants/${id}`} id="cart-btn" className="btn">
+            Browse Menu
+          </a>
+        </div>
       </div>
     );
   }
@@ -111,15 +143,15 @@ const CartPage = () => {
                   <td className="restaurant" data-restaurant={item.restaurant}>
                     {item.restaurant}
                   </td>
-                  <td
-                    className={`cart-item-total-${item.dish}`}
-                  >
+                  <td className={`cart-item-total-${item.dish}`}>
                     &#8377; {item.price * item.quantity}
                   </td>
                   <td>
                     <a
                       className="button is-small"
-                      onClick={() => handleRemoveDish(index)}
+                      onClick={() =>
+                        handleRemoveDish(index, item.dish, item.restaurant)
+                      }
                     >
                       <i
                         class="fa-solid fa-trash-can"
@@ -131,7 +163,17 @@ const CartPage = () => {
               ))}
             </tbody>
           </table>
-          {/* Totals and buttons would go here */}
+          <div className="cart-totals">
+            <h3>Total Price: &#8377; {calculateTotalPrice()}</h3>
+          </div>
+          <div className="cart-buttons">
+            <button className="btn btn-clear" onClick={handleClearCart}>
+              Clear
+            </button>
+            <button className="btn btn-order" onClick={handlePlaceOrder}>
+              Place Order
+            </button>
+          </div>
         </div>
       </div>
     </div>
