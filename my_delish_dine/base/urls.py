@@ -11,6 +11,7 @@ from .views import (
     get_restaurant_by_name,
     book_table,
     add_dish,
+    remove_dish,
 )
 
 # ,send_message
@@ -31,4 +32,5 @@ urlpatterns = [
     ),
     path("api/book_table/<str:name>/", book_table, name="book_table"),
     path("add_dish/", add_dish, name="add-dish"),
+    path("removeDish/", remove_dish, name="remove-dish"),
 ]

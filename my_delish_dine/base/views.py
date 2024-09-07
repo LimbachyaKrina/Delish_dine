@@ -55,10 +55,11 @@ def book_table(request, name):
 @require_GET
 def get_restaurant_by_name(request, name, user_id):
     cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0}) or []
-
     if cart:
         cart = cart["items"]
-        items = [cart_item["dish"] for cart_item in cart]
+        items = [
+            cart_item["dish"] for cart_item in cart if cart_item["restaurant"] == name
+        ]
     else:
         items = []
     restaurant = restaurants_collection.find_one(
@@ -387,7 +388,9 @@ def get_cart(request):
     if request.method == "POST":
         data = json.loads(request.body)
         user_id = data["id"]
-        user_cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})["items"]
+        user_cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})[
+            "items"
+        ]
         return JsonResponse(
             {
                 "success": True,
@@ -430,7 +433,7 @@ def add_dish(request):
             user_id = data["id"]
             image = data["image"]
             cart_item = {
-                "image":image,
+                "image": image,
                 "restaurant": restaurant,
                 "dish": dishName,
                 "price": price,
@@ -448,6 +451,52 @@ def add_dish(request):
                 {"success": True, "message": f"Added {dishName} to {user_id} cart!!!"},
                 status=200,
             )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"{e}"},
+                status=500,
+            )
+
+
+@csrf_exempt
+@api_view(["POST"])
+def remove_dish(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            all_dishes = data["all"]
+            user_id = data["id"]
+            if all_dishes:
+                carts.update_one({"user_id": user_id}, {"$set": {"items": []}})
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": f"Cart cleared successfully!!!",
+                        "all": True,
+                    },
+                    status=200,
+                )
+            else:
+                dishName = data["dish"]
+                restaurant = data["restaurant"]
+                cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})[
+                    "items"
+                ]
+                new_cart = [
+                    cart_item
+                    for cart_item in cart
+                    if cart_item["dish"] != dishName
+                    and cart_item["restaurant"] != restaurant
+                ]
+                carts.update_one({"user_id": user_id}, {"$set": {"items": new_cart}})
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": f"Successfully removed {dishName} from {user_id} cart!!",
+                        "all": False,
+                    },
+                    status=200,
+                )
         except Exception as e:
             return JsonResponse(
                 {"success": False, "error": f"{e}"},
