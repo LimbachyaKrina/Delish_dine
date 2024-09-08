@@ -36,15 +36,35 @@ const CartPage = () => {
     fetchCartData();
   }, [id]);
 
-  const handleQuantityChange = (index, newQuantity) => {
-    setCartData((prevCartData) => {
-      const updatedCart = [...prevCartData];
-      updatedCart[index].quantity = newQuantity;
-      return updatedCart;
-    });
+  const handleQuantityChange = async (index, newQuantity) => {
+    try {
+      const updated_dish = cartData[index];
+      const res = await fetch("http://localhost:8000/update_quantity/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ dish: updated_dish, id, newQuantity }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setCartData((prevCartData) => {
+          const updatedCart = [...prevCartData];
+          updatedCart[index].quantity = newQuantity;
+          return updatedCart;
+        });
+        console.log("Updated successfully!!!");
+      } else {
+        console.log(data.error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleRemoveDish = async (index, dish, restaurant, all = false) => {
+  const handleRemoveDish = async (dish, restaurant, all = false) => {
     try {
       const res = await fetch("http://localhost:8000/removeDish/", {
         method: "POST",
@@ -58,18 +78,23 @@ const CartPage = () => {
 
       if (data.success) {
         if (data.all) {
-          setCartData([]);
+          setCartData([]); // Clear all items
           return;
         }
+        // Remove the dish based on both dish name and restaurant
         setCartData((prevCartData) =>
-          prevCartData.filter((_, i) => i !== index)
+          prevCartData.filter(
+            (item) => !(item.dish === dish && item.restaurant === restaurant)
+          )
         );
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error removing dish:", error);
+    }
   };
 
   const handleClearCart = async () => {
-    await handleRemoveDish(null, null, null, true);
+    await handleRemoveDish(null, null, true);
   };
 
   const handlePlaceOrder = () => {
@@ -128,7 +153,7 @@ const CartPage = () => {
                   <td className="dish" data-dish={item.dish}>
                     {item.dish}
                   </td>
-                  <td>&#8377; {item.price}</td>
+                  <td>&#8377;{item.price}</td>
                   <td>
                     <input
                       className="input is-primary cart-item-qty"
@@ -144,17 +169,17 @@ const CartPage = () => {
                     {item.restaurant}
                   </td>
                   <td className={`cart-item-total-${item.dish}`}>
-                    &#8377; {item.price * item.quantity}
+                    &#8377;{item.price * item.quantity}
                   </td>
                   <td>
                     <a
                       className="button is-small"
                       onClick={() =>
-                        handleRemoveDish(index, item.dish, item.restaurant)
+                        handleRemoveDish(item.dish, item.restaurant)
                       }
                     >
                       <i
-                        class="fa-solid fa-trash-can"
+                        className="fa-solid fa-trash-can"
                         style={{ color: "red" }}
                       ></i>
                     </a>

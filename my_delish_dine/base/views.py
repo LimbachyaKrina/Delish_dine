@@ -396,26 +396,6 @@ def get_cart(request):
                 "success": True,
                 "message": "Test view",
                 "cart": list(user_cart)
-                or [
-                    {
-                        "dish": "Margherita Pizza",
-                        "restaurant": "Pizza Palace",
-                        "price": 499,
-                        "quantity": 2,
-                    },
-                    {
-                        "dish": "Pasta Alfredo",
-                        "restaurant": "Italiano Bistro",
-                        "price": 299,
-                        "quantity": 1,
-                    },
-                    {
-                        "dish": "Caesar Salad",
-                        "restaurant": "Salad Stop",
-                        "price": 199,
-                        "quantity": 3,
-                    },
-                ],
             },
             status=200,
         )
@@ -466,7 +446,9 @@ def remove_dish(request):
             data = json.loads(request.body)
             all_dishes = data["all"]
             user_id = data["id"]
+
             if all_dishes:
+                # Clear the entire cart
                 carts.update_one({"user_id": user_id}, {"$set": {"items": []}})
                 return JsonResponse(
                     {
@@ -477,26 +459,61 @@ def remove_dish(request):
                     status=200,
                 )
             else:
-                dishName = data["dish"]
+                # Remove a specific dish from the user's cart
+                dish_name = data["dish"]
                 restaurant = data["restaurant"]
-                cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})[
-                    "items"
-                ]
+                
+                # Find the user's cart
+                cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})["items"]
+                
+                # Filter the cart to remove only the specific dish from the specific restaurant
                 new_cart = [
-                    cart_item
-                    for cart_item in cart
-                    if cart_item["dish"] != dishName
-                    and cart_item["restaurant"] != restaurant
+                    cart_item for cart_item in cart
+                    if not (cart_item["dish"] == dish_name and cart_item["restaurant"] == restaurant)
                 ]
+                
+                # Update the cart with the filtered list
                 carts.update_one({"user_id": user_id}, {"$set": {"items": new_cart}})
+                
                 return JsonResponse(
                     {
                         "success": True,
-                        "message": f"Successfully removed {dishName} from {user_id} cart!!",
+                        "message": f"Successfully removed {dish_name} from {user_id}'s cart!!",
                         "all": False,
                     },
                     status=200,
                 )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"{e}"},
+                status=500,
+            )
+
+@csrf_exempt
+@api_view(["POST"])
+def update_quantity(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            dish = data["dish"]
+            newQuantity = data["newQuantity"]
+            user_id = data["id"]
+            user_cart = carts.find_one({"user_id": user_id})["items"]
+            for item in user_cart:
+                if (
+                    item["dish"] == dish["dish"]
+                    and item["restaurant"] == dish["restaurant"]
+                ):
+                    item["quantity"] = newQuantity
+                    break
+            carts.update_one({"user_id": user_id}, {"$set": {"items": user_cart}})
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": f"Updated quantity for {dish["dish"]}!!!!",
+                },
+                status=200,
+            )
         except Exception as e:
             return JsonResponse(
                 {"success": False, "error": f"{e}"},
