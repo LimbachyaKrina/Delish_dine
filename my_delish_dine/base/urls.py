@@ -12,6 +12,7 @@ from .views import (
     book_table,
     add_dish,
     remove_dish,
+    update_quantity,
 )
 
 # ,send_message
@@ -33,4 +34,5 @@ urlpatterns = [
     path("api/book_table/<str:name>/", book_table, name="book_table"),
     path("add_dish/", add_dish, name="add-dish"),
     path("removeDish/", remove_dish, name="remove-dish"),
+    path("update_quantity/", update_quantity, name="update-quantity"),
 ]

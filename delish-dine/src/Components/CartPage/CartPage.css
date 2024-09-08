@@ -22,6 +22,7 @@
   margin-bottom: 25px;
   font-weight: 700;
   letter-spacing: 1px; /* Enhanced readability */
+  text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -37,6 +38,7 @@
   color: #666;
   font-size: 1.1rem;
   margin-bottom: 35px;
+  text-align: center;
   font-style: italic;
 }
 
@@ -58,6 +60,8 @@
 
 #cart-btn {
   background-color: #40ba37;
+  color: white;
+  border: none;
 }
 
 #cart-btn:hover,
@@ -208,7 +212,7 @@
   }
 }
 
-/* Totals */
+/* Totals Section */
 .cart-totals {
   font-size: 1.5rem;
   color: #444;
@@ -244,5 +248,50 @@
   .btn-clear,
   .btn-order {
     width: 100%;
+  }
+}
+
+/* Additional Aesthetic Enhancements */
+.cart-container {
+  background-color: #ffffff;
+  padding: 50px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .cart-container {
+    padding: 30px 20px;
+  }
+}
+
+/* Empty Cart Message Styling */
+.empty-cart {
+  font-size: 1.4rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .empty-cart {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+}
+
+/* Image Responsiveness */
+.cart-empty-image {
+  max-width: 200px;
+  margin: 0 auto 30px;
+}
+
+@media (max-width: 768px) {
+  .cart-empty-image {
+    max-width: 150px;
+    margin-bottom: 20px;
   }
 }
