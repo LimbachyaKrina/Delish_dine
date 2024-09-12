@@ -5,31 +5,25 @@ from django.views.decorators.csrf import csrf_exempt
 from .utils import connect_to_database
 from django.core.validators import validate_email
 import bcrypt
-from google.oauth2 import id_token
 from google.auth.transport import requests
 from .utils import connect_to_database
 import requests
-from django.conf import settings
 from django.core.mail import send_mail
 import random
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 import os
 from datetime import datetime, timedelta
 
 from django.utils import timezone
 from datetime import timedelta
-from django.views.decorators.http import require_http_methods
 
 from rest_framework.response import Response
-from rest_framework import status
 
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 import json
 
 
-from dotenv import load_dotenv
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
@@ -43,50 +37,6 @@ carts = db["carts"]
 restaurants_collection = db["Restaurants"]
 
 
-@csrf_exempt
-@require_POST
-def book_table(request, name):
-    data = json.loads(request.body)
-    # Process the booking data and save it to the database
-    # (you'll need to implement this logic)
-    return JsonResponse({"message": "Table booked successfully!"}, status=201)
-
-
-@require_GET
-def get_restaurant_by_name(request, name, user_id):
-    cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0}) or []
-    if cart:
-        cart = cart["items"]
-        items = [
-            cart_item["dish"] for cart_item in cart if cart_item["restaurant"] == name
-        ]
-    else:
-        items = []
-    restaurant = restaurants_collection.find_one(
-        {"Name": {"$regex": f"^{name}$", "$options": "i"}}
-    )
-    if restaurant:
-        restaurant["_id"] = str(restaurant["_id"])
-        return JsonResponse(
-            {
-                "restaurant": restaurant,
-                "items": items,
-                "message": "Fetched successfully!!!",
-            },
-            status=200,
-        )
-    else:
-        return JsonResponse({"error": "Restaurant not found"}, status=404)
-
-
-@require_GET
-def get_restaurants(request):
-    restaurants = list(restaurants_collection.find({}))
-    for restaurant in restaurants:
-        restaurant["_id"] = str(restaurant["_id"])
-    return JsonResponse(restaurants, safe=False)
-
-
 def options(request, *args, **kwargs):
     response = JsonResponse({"status": "ok"})
     response["Access-Control-Allow-Origin"] = "http://localhost:3000"
@@ -98,7 +48,7 @@ def options(request, *args, **kwargs):
 
 db, client = connect_to_database()
 
-# Create your views here.
+
 
 
 @csrf_exempt
@@ -117,7 +67,7 @@ def SignIn(request):
         print(object_id)
         if bcrypt.checkpw(data["password"].encode("utf-8"), password.encode("utf-8")):
             return JsonResponse(
-                {"message": f"Welcome {username}", "success": True, "id": object_id},
+                {"message": f"Welcome {username}", "success": True, "id": object_id, 'name':username},
                 status=200,
             )
         return JsonResponse(
@@ -228,6 +178,7 @@ def google_login(request):
                     "success": True,
                     "user": {"created": created},
                     "id": str(user.get("_id")),
+                    'name': name,
                 }
             )
 
@@ -291,7 +242,7 @@ def facebook_login(request):
                     )
 
                 return JsonResponse(
-                    {"success": True, "data": user_info, "id": str(user.get("_id"))}
+                    {"success": True, "data": user_info, "id": str(user.get("_id")),'name':name}
                 )
 
             except Exception as e:
@@ -519,3 +470,48 @@ def update_quantity(request):
                 {"success": False, "error": f"{e}"},
                 status=500,
             )
+
+
+
+@csrf_exempt
+@require_POST
+def book_table(request, name):
+    data = json.loads(request.body)
+    # Process the booking data and save it to the database
+    # (you'll need to implement this logic)
+    return JsonResponse({"message": "Table booked successfully!"}, status=201)
+
+
+@require_GET
+def get_restaurant_by_name(request, name, user_id):
+    cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0}) or []
+    if cart:
+        cart = cart["items"]
+        items = [
+            cart_item["dish"] for cart_item in cart if cart_item["restaurant"] == name
+        ]
+    else:
+        items = []
+    restaurant = restaurants_collection.find_one(
+        {"Name": {"$regex": f"^{name}$", "$options": "i"}}
+    )
+    if restaurant:
+        restaurant["_id"] = str(restaurant["_id"])
+        return JsonResponse(
+            {
+                "restaurant": restaurant,
+                "items": items,
+                "message": "Fetched successfully!!!",
+            },
+            status=200,
+        )
+    else:
+        return JsonResponse({"error": "Restaurant not found"}, status=404)
+
+
+@require_GET
+def get_restaurants(request):
+    restaurants = list(restaurants_collection.find({}))
+    for restaurant in restaurants:
+        restaurant["_id"] = str(restaurant["_id"])
+    return JsonResponse(restaurants, safe=False)
