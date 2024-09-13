@@ -33,10 +33,9 @@ from dotenv import load_dotenv
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
+load_dotenv()
 
-client = MongoClient(
-    "mongodb+srv://krashmeh:krish1407%3F%3F@cluster0.kesohfj.mongodb.net/"
-)
+_,client = connect_to_database()
 db = client["Test_group_project"]
 userbase = db["userbase"]
 carts = db["carts"]
