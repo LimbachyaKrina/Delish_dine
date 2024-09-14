@@ -33,6 +33,19 @@ from dotenv import load_dotenv
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET, require_POST
+from datetime import datetime
+import json
+from django.conf import settings
+from pymongo import MongoClient
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST, require_GET
+from pymongo import MongoClient
+
+
 
 client = MongoClient(
     "mongodb+srv://krashmeh:krish1407%3F%3F@cluster0.kesohfj.mongodb.net/"
@@ -41,15 +54,141 @@ db = client["Test_group_project"]
 userbase = db["userbase"]
 carts = db["carts"]
 restaurants_collection = db["Restaurants"]
+bookings_collection = db['bookings']
 
+import logging
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+@csrf_exempt
+@require_POST
+def check_availability(request):
+    try:
+        # Log request body
+        logger.info(f"Received check availability request: {request.body}")
+
+        data = json.loads(request.body)
+        restaurant_name = data.get('restaurant_name')
+        date = data.get('date')
+        time = data.get('time')
+        people = int(data.get('people'))
+
+        # Log extracted data
+        logger.info(f"Checking availability for {restaurant_name} on {date} at {time} for {people} people.")
+
+        if not restaurant_name or not date or not time or not people:
+            logger.error("Missing required fields in the request")
+            return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+        # Check for existing bookings for that time slot
+        existing_bookings = bookings_collection.find({
+            'restaurant_name': restaurant_name,
+            'date': date,
+            'time': time
+        })
+
+        total_tables = 10  # Assuming 10 tables in the restaurant
+        booked_tables = sum([booking['people'] for booking in existing_bookings])
+
+        available_tables = total_tables - booked_tables
+        logger.info(f"Available tables: {available_tables}")
+
+        if available_tables > 0:
+            return JsonResponse({'success': True, 'available_tables': available_tables})
+        else:
+            logger.info("No tables available")
+            return JsonResponse({'success': False, 'message': 'No tables available'}, status=400)
+
+    except Exception as e:
+        logger.error(f"Error in check_availability: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# @csrf_exempt
+# @require_POST
+# def book_table(request):
+#     try:
+#         data = json.loads(request.body)
+#         restaurant_name = data.get('restaurant_name')
+#         date = data.get('date')
+#         time = data.get('time')
+#         people = int(data.get('people'))
+#         name = data.get('name')  # Retrieve customer name from request
+
+#         if not restaurant_name or not date or not time or not people or not name:
+#             return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+#         # Log the booking
+#         logger.info(f"Booking table for {restaurant_name} on {date} at {time} for {people} people. Customer: {name}")
+
+#         # Add booking to MongoDB
+#         booking = {
+#             'restaurant_name': restaurant_name,
+#             'date': date,
+#             'time': time,
+#             'people': people,
+#             'name': name  # Include customer name in booking data
+#         }
+
+#         bookings_collection.insert_one(booking)
+#         return JsonResponse({'success': True, 'message': 'Booking successful'})
+    
+#     except Exception as e:
+#         logger.error(f"Error in book_table: {str(e)}")
+#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @csrf_exempt
 @require_POST
-def book_table(request, name):
-    data = json.loads(request.body)
-    # Process the booking data and save it to the database
-    # (you'll need to implement this logic)
-    return JsonResponse({"message": "Table booked successfully!"}, status=201)
+def book_table(request):
+    try:
+        data = json.loads(request.body)
+        restaurant_name = data.get('restaurant_name')
+        date = data.get('date')
+        time = data.get('time')
+        people = int(data.get('people'))
+        user_id = data.get('userId')  # Get userId from the request
+        customer_name = data.get('name')  # Get the customer name
+
+        if not restaurant_name or not date or not time or not people or not user_id:
+            return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+        # Add booking to MongoDB
+        booking = {
+            'restaurant_name': restaurant_name,
+            'date': date,
+            'time': time,
+            'people': people,
+            'user_id': user_id,  # Include userId in the booking
+            'customer_name': customer_name  # Store customer name
+        }
+
+        bookings_collection.insert_one(booking)
+        return JsonResponse({'success': True, 'message': 'Booking successful'})
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_GET
+def get_bookings(request, restaurant_name):
+    try:
+        # Query the MongoDB database for bookings by restaurant name
+        bookings_cursor = bookings_collection.find({"restaurant_name": restaurant_name})
+
+        bookings_list = list(bookings_cursor)
+        
+        if len(bookings_list) == 0:
+            return JsonResponse({'success': True, 'bookings': []})
+
+        # Convert MongoDB ObjectId to string and prepare for JSON response
+        for booking in bookings_list:
+            booking['_id'] = str(booking['_id'])
+
+        return JsonResponse({'success': True, 'bookings': bookings_list})
+
+    except Exception as e:
+        # Return error in case of an exception
+        logger.error(f"Error in get_bookings: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 @require_GET

@@ -9,8 +9,9 @@ from .views import (
     get_cart,
     get_restaurants,
     get_restaurant_by_name,
-    book_table,
+    
     add_dish,
+    check_availability,book_table,get_bookings
 )
 
 # ,send_message
@@ -29,6 +30,17 @@ urlpatterns = [
         get_restaurant_by_name,
         name="get_restaurant_by_name",
     ),
-    path("api/book_table/<str:name>/", book_table, name="book_table"),
+    
     path("add_dish/", add_dish, name="add-dish"),
+#    path('checkAvailability/<str:name>/', check_availability, name='check_availability'),
+#     path('bookTable/<str:name>/', book_table, name='book_table'),
+#     path('getBookings/<str:name>/', get_bookings, name='get_bookings'),]
+
+
+
+path('api/check_availability/', check_availability, name='check_availability'),
+    path('api/book_table/', book_table, name='book_table'),
+    
+    path('api/get_bookings/<str:restaurant_name>/', get_bookings, name='get_bookings'),
+
 ]

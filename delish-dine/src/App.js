@@ -7,8 +7,8 @@ import Cart from "./Pages/Cart/Cart";
 import Home from "./Pages/Home/Home";
 import Restaurants from "./Pages/Restaurants/Restaurants";
 import RestaurantDetail from "./Pages/RestaurantDetail/RestaurantDetail";
-import Booking from "./Pages/Booking/Booking";
-
+import BookingPage from "./Pages/Booking/BookingPage";
+import BookList from "./Components/BookList/BookList";
 export default function App() {
   return (
     <BrowserRouter>
@@ -26,9 +26,15 @@ export default function App() {
         <Route
           path="/restaurants/:name/:id"
           element={<RestaurantDetail></RestaurantDetail>}
+
+
+
         />
-        <Route path="/booking/:name/:id" element={<Booking></Booking>} />
-      </Routes>
+        <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
+        <Route path="/bookings/:restaurantName" element={<BookList />} />
+
+
+        </Routes>
     </BrowserRouter>
   );
 }
