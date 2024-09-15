@@ -515,3 +515,21 @@ def get_restaurants(request):
     for restaurant in restaurants:
         restaurant["_id"] = str(restaurant["_id"])
     return JsonResponse(restaurants, safe=False)
+
+@require_GET
+def get_images_for_restaurants(request):
+    restaurant_names = [
+        'Chinese Wok',
+        'Subway',
+        'The Belgian Waffle Co.'
+    ]
+    
+    # Fetch the documents for the specified restaurant names
+    query = {'Name': {'$in': restaurant_names}}
+    restaurants = list(restaurants_collection.find(query, {'_id': 0, 'Name': 1, 'Image': 1}))
+    
+    # Process the documents to convert ObjectId to string and extract image URLs
+    for restaurant in restaurants:
+        restaurant['Name'] = str(restaurant.get('Name', ''))
+        restaurant['Image'] = restaurant.get('Image', [])  
+    return JsonResponse(restaurants, safe=False)

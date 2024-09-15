@@ -13,6 +13,7 @@ from .views import (
     add_dish,
     remove_dish,
     update_quantity,
+    get_images_for_restaurants,
 )
 
 # ,send_message
@@ -35,4 +36,6 @@ urlpatterns = [
     path("add_dish/", add_dish, name="add-dish"),
     path("removeDish/", remove_dish, name="remove-dish"),
     path("update_quantity/", update_quantity, name="update-quantity"),
+    path("get_images_for_restaurants", get_images_for_restaurants, name="get_images_for_restaurants"),
 ]
+
