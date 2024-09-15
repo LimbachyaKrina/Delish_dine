@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 import json
