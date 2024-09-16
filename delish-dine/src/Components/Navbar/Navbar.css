@@ -5,7 +5,13 @@
   padding: 15px;
   background-color: #fff;
   color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+/* Rest of the CSS remains the same */
 .navbar .content {
     align-items: left !important;
 }
@@ -65,10 +71,10 @@
   position: relative;
   margin-left: 50px;
 }
+
 .user-profile {
   position: relative;
 }
-
 
 .notification-count {
   position: absolute;
@@ -80,7 +86,6 @@
   padding: 2px 4px;
   border-radius: 50%;
 }
-
 
 .menu-icon {
   display: none;
@@ -155,8 +160,7 @@
   }
 
   .notification-count {
-      display: none;
-    
+    display: none;
   }
 }
 
@@ -164,7 +168,6 @@
 .notifications {
   margin-right: 50px;
   padding-left: 60px;
-  /* Increase overall size */
   transform: scale(1.2);
 }
 
@@ -177,15 +180,13 @@
   transition: all 0.3s ease;
 }
 
-  .user-profile .nav-link:hover,
-  .notifications .nav-link:hover {
-    /* Change color on hover */
-    color: #F77E21;
-  }
+.user-profile .nav-link:hover,
+.notifications .nav-link:hover {
+  color: #F77E21;
+}
 
 .navbar.open .user-profile .nav-link,
-.navbar.open notifications .nav-link {
-  /* Adjust for mobile view */
+.navbar.open .notifications .nav-link {
   justify-content: flex-start;
   width: 100%;
 }
