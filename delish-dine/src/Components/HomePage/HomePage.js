@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import Carousel from "../../Components/Carousel/Carousel";
+import RestaurantList from "../../Components/RestaurantsList/RestaurantList";
 
 export default function HomePage() {
   const { name } = useParams();
@@ -25,6 +26,7 @@ export default function HomePage() {
     What's your mood for today?
     </div>
     <Carousel />
+    <RestaurantList />
     </>
   );
 }
