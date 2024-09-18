@@ -45,9 +45,9 @@ export default function SignIn() {
       return;
     }
 
-    const name = res.name
+    const id = res.id
     setState({ username: "", password: "" });
-    navigate("/home/"+name)
+    navigate(`/home/${id}`)
   };
 
   const googleLogin = useGoogleLogin({
@@ -82,8 +82,8 @@ export default function SignIn() {
 
         const data = await response.json();
         console.log("Server response:", data);
-        const name = data.name
-        navigate("/home/"+name)
+        const id = data.id
+        navigate(`/home/${id}`)
       } catch (error) {
         console.error("Error during Google login:", error);
         setDisplay("");
@@ -122,8 +122,9 @@ export default function SignIn() {
                   .then((response) => response.json())
                   .then((data) => {
                     console.log("Server response:", data);
-                    const name = data.name
-                    navigate("/home/"+name)
+                    console.log(data.id)
+                    const id = data.id
+                    navigate(`/home/${id}`)
                   })
                   .catch((error) => console.error("Error:", error));
               }

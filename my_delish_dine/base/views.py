@@ -28,6 +28,9 @@ import json
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
+
+from bson import ObjectId
+
 load_dotenv()
 
 _,client = connect_to_database()
@@ -67,7 +70,7 @@ def SignIn(request):
         print(object_id)
         if bcrypt.checkpw(data["password"].encode("utf-8"), password.encode("utf-8")):
             return JsonResponse(
-                {"message": f"Welcome {username}", "success": True, "id": object_id, 'name':username},
+                {"message": f"Welcome {username}", "success": True, "id": object_id},
                 status=200,
             )
         return JsonResponse(
@@ -533,3 +536,17 @@ def get_images_for_restaurants(request):
         restaurant['Name'] = str(restaurant.get('Name', ''))
         restaurant['Image'] = restaurant.get('Image', [])  
     return JsonResponse(restaurants, safe=False)
+
+
+def get_user_by_id(request, id):
+    try:
+        # Fetch user details from MongoDB using ObjectId
+        user = db.find_one({"_id": ObjectId(id)})
+        if user:
+            # Check if 'name' or 'username' exists and return the one available
+            user_name = user.get('name') or user.get('username') or 'No Name Available'
+            return JsonResponse({"name": user_name}, status=200)
+        else:
+            return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
