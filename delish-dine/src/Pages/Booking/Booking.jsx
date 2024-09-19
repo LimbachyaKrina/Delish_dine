@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import styles from './Booking.module.css';
 
 // Function to get CSRF token from cookie
 const getCSRFToken = () => {
@@ -41,8 +42,6 @@ const BookingPage = () => {
         people: parseInt(formData.people, 10),
       };
 
-      console.log('Sending request data:', requestData); // Log request data
-
       const response = await axios.post(
         'http://localhost:8000/api/check_availability/',
         requestData,
@@ -52,8 +51,6 @@ const BookingPage = () => {
           },
         }
       );
-
-      console.log('Response:', response);
 
       if (response.data.success) {
         if (response.data.message) {
@@ -69,7 +66,6 @@ const BookingPage = () => {
       }
     } catch (error) {
       setError('Error checking availability: ' + (error.response?.data?.error || error.message));
-      console.error('Error checking availability:', error);
     }
   };
 
@@ -107,37 +103,39 @@ const BookingPage = () => {
       }
     } catch (error) {
       setError('Error booking table: ' + (error.response?.data?.error || error.message));
-      console.error('Error booking table:', error);
     }
   };
 
   return (
-    <div>
-      <h1>Book a Table at {restaurantName}</h1>
-      <form>
-        <label>Name:</label>
+    <div className={styles.bookingContainer}>
+      <h1 className={styles.heading}>Book a Table at {restaurantName}</h1>
+      <form className={styles.form}>
+        <label className={styles.label}>Name:</label>
         <input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+          className={styles.input}
           required
         />
 
-        <label>Date:</label>
+        <label className={styles.label}>Date:</label>
         <input
           type="date"
           name="date"
           value={formData.date}
           onChange={handleInputChange}
+          className={styles.input}
           required
         />
 
-        <label>Time:</label>
+        <label className={styles.label}>Time:</label>
         <select
           name="time"
           value={formData.time}
           onChange={handleInputChange}
+          className={styles.input}
           required
         >
           <option value="">Select a time slot</option>
@@ -148,37 +146,48 @@ const BookingPage = () => {
           <option value="16:00">16:00</option>
         </select>
 
-        <label>Number of People:</label>
+        <label className={styles.label}>Number of People:</label>
         <input
           type="number"
           name="people"
           value={formData.people}
           onChange={handleInputChange}
+          className={styles.input}
           required
         />
 
-        <button type="button" onClick={checkAvailability}>
+        <button
+          type="button"
+          className={styles.button}
+          onClick={checkAvailability}
+        >
           Check Availability
         </button>
       </form>
 
       {availableCapacity !== null && (
-        <div>
+        <div className={styles.capacityContainer}>
           {availableCapacity > 0 ? (
             <>
-              <p>Available Capacity for {formData.time}: {availableCapacity} people</p>
-              <button type="button" onClick={bookTable}>
+              <p className={styles.availableMessage}>
+                Available Capacity for {formData.time}: {availableCapacity} people
+              </p>
+              <button
+                type="button"
+                className={styles.bookButton}
+                onClick={bookTable}
+              >
                 Book Table
               </button>
             </>
           ) : (
-            <p>No available capacity for this slot. Please choose another time slot.</p>
+            <p className={styles.errorMessage}>No available capacity for this slot. Please choose another time slot.</p>
           )}
         </div>
       )}
 
-      {bookingSuccess && <p>Booking successful!</p>}
-      {error && <p>{error}</p>}
+      {bookingSuccess && <p className={styles.successMessage}>Booking successful!</p>}
+      {error && <p className={styles.errorMessage}>{error}</p>}
     </div>
   );
 };

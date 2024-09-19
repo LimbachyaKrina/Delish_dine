@@ -48,5 +48,6 @@ urlpatterns = [
         get_restaurant_by_name,
         name="get_restaurant_by_name",
     )
+
 ]
 

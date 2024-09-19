@@ -7,10 +7,11 @@ import Cart from "./Pages/Cart/Cart";
 import Home from "./Pages/Home/Home";
 import Restaurants from "./Pages/Restaurants/Restaurants";
 import RestaurantDetail from "./Pages/RestaurantDetail/RestaurantDetail";
-import Booking from "./Pages/Booking/Booking";
+
 import AboutUs from "./Pages/AboutUs/AboutUs";
+import BillingPage from "./Pages/Bill/BillingPage";
 import Profile from "./Pages/Profile/Profile";
-import BookingPage from "./Pages/Booking/BookingPage";
+import BookingPage from "./Pages/Booking/Booking";
 import BookList from "./Components/BookList/BookList";
 export default function App() {
   return (
@@ -30,11 +31,13 @@ export default function App() {
           path="/restaurants/:name/:id"
           element={<RestaurantDetail></RestaurantDetail>}
         />
-        <Route path="/booking/:name/:id" element={<Booking></Booking>} />
         <Route path="/about-us" element={<AboutUs></AboutUs>}/>
         <Route path="/profile" element={<Profile></Profile>}/>
         <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
         <Route path="/bookings/:restaurantName" element={<BookList />} />
+
+        <Route path="/billing/:id" element={<BillingPage />} />
+
       </Routes>
     </BrowserRouter>
   );

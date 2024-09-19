@@ -30,6 +30,8 @@ from django.views.decorators.http import require_POST
 
 
 from bson import ObjectId
+import logging
+
 
 load_dotenv()
 
@@ -685,3 +687,106 @@ def get_user_by_id(request, id):
             return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.views import View
+import paypalrestsdk
+from pymongo import MongoClient
+
+# Configure PayPal SDK
+paypalrestsdk.configure({
+    "mode": settings.PAYPAL_MODE,  # 'sandbox' for testing, 'live' for production
+    "client_id": settings.PAYPAL_CLIENT_ID,
+    "client_secret": settings.PAYPAL_CLIENT_SECRET
+})
+
+
+payments_collection = db["payments"]  # Add this for storing payment info
+
+class PaymentView(View):
+    def get(self, request):
+        # Render the payment form
+        return render(request, 'payments/payment.html')
+
+    def post(self, request):
+        # Get the amount from the payment form (or can be from the cart or booking info)
+        amount = request.POST.get('amount')
+        booking_id = request.POST.get('booking_id')  # Or cart_id if you use cart
+        
+        # Fetch booking/cart info if needed (this can be customized as per your flow)
+        booking_info = bookings_collection.find_one({"_id": booking_id})
+        if not booking_info:
+            return redirect('payment_failure')
+
+        # Create a new PayPal payment
+        payment = paypalrestsdk.Payment({
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "transactions": [{
+                "amount": {
+                    "total": amount,
+                    "currency": "USD"
+                },
+                "description": f"Payment for booking at {booking_info['restaurant_name']}"
+            }],
+            "redirect_urls": {
+                "return_url": request.build_absolute_uri('/payment-success/'),
+                "cancel_url": request.build_absolute_uri('/payment-failure/')
+            }
+        })
+
+        # If the payment is successfully created
+        if payment.create():
+            # Save payment info in MongoDB collection
+            payment_record = {
+                'amount': amount,
+                'paypal_payment_id': payment.id,
+                'booking_id': booking_id,
+                'success': False
+            }
+            payments_collection.insert_one(payment_record)
+
+            # Find the PayPal approval URL and redirect the user
+            for link in payment.links:
+                if link.rel == "approval_url":
+                    approval_url = link.href
+                    return redirect(approval_url)
+
+        # If payment creation failed, redirect to payment failure page
+        return redirect('payment_failure')
+
+def payment_success(request):
+    # Get payment info from PayPal return parameters
+    payment_id = request.GET.get('paymentId')
+    payer_id = request.GET.get('PayerID')
+
+    # Find the payment by ID in PayPal
+    payment = paypalrestsdk.Payment.find(payment_id)
+
+    # Execute the payment
+    if payment.execute({"payer_id": payer_id}):
+        # Update payment status in MongoDB to success
+        payments_collection.update_one(
+            {'paypal_payment_id': payment_id},
+            {'$set': {'success': True}}
+        )
+
+        # Retrieve the payment info for display (like amount, booking details)
+        payment_record = payments_collection.find_one({'paypal_payment_id': payment_id})
+        payment_amount = payment_record['amount']
+
+        return render(request, 'payments/payment_success.html', {'amount': payment_amount})
+
+    # If payment execution failed, redirect to failure page
+    return redirect('payment_failure')
+
+def payment_failure(request):
+    # Simply render the payment failure page
+    return render(request, 'payments/payment_failure.html')

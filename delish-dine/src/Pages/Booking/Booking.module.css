@@ -1,17 +1,24 @@
-/* BookingPage.css */
-.booking-container {
+.container {
   max-width: 600px;
-  margin: auto;
+  margin: 50px auto;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #E1D7B7;
+  border-radius: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 h1 {
+  color: #1E2A5E;
   text-align: center;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
 }
 
 form {
@@ -21,45 +28,74 @@ form {
 }
 
 label {
-  font-size: 16px;
   font-weight: bold;
-  color: #333;
+  color: #55679C;
+  font-size: 16px;
 }
 
 input[type="text"],
 input[type="date"],
-input[type="time"],
-input[type="number"] {
+input[type="number"],
+select {
   padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #7C93C3;
+  outline: none;
+  transition: all 0.3s ease;
+  background-color: #E1D7B7;
+  color: #1E2A5E;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: #1E2A5E;
+  box-shadow: 0px 0px 8px rgba(30, 42, 94, 0.3);
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007bff;
+  background-color: #7C93C3;
+  color: white;
+  padding: 10px 15px;
+  font-weight: bold;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #55679C;
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-.error-message,
-.success-message {
-  color: #d9534f; /* Bootstrap red */
+button:active {
+  transform: scale(0.98);
+}
+
+.message {
+  margin-top: 20px;
+  font-size: 18px;
   font-weight: bold;
+  color: #1E2A5E;
   text-align: center;
 }
 
-.success-message {
-  color: #5bc0de; /* Bootstrap cyan */
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.message {
+  animation: fadeIn 0.5s ease-in-out;
 }
