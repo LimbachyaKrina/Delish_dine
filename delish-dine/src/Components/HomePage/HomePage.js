@@ -43,7 +43,7 @@ export default function HomePage() {
       </div>
       <Carousel />
       <div>
-        <img src="/img/Discount.avif" alt="Discount" style={{ height:"200vh", border:"2px solid black"}}></img>
+        <img src="/img/Discount.avif" alt="Discount" style={{ height:"250px", width:"200vh", paddingLeft:"30px"}}></img>
       </div>
       <RestaurantList />
     </>
