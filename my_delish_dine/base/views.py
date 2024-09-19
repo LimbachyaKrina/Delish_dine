@@ -1,3 +1,4 @@
+import logging
 from dotenv import load_dotenv
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
@@ -118,6 +119,8 @@ def check_availability(request):
     except Exception as e:
         logger.error(f"Error in check_availability: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+
 @csrf_exempt
 @require_POST
 def book_table(request):
