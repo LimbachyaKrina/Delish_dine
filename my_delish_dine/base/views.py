@@ -464,11 +464,12 @@ def update_quantity(request):
             return JsonResponse(
                 {
                     "success": True,
-                    "message": f"Updated quantity for {dish["dish"]}!!!!",
+                    "message": f"Updated quantity for {dish['dish']}!!!!",
                 },
                 status=200,
             )
         except Exception as e:
+            print(e)
             return JsonResponse(
                 {"success": False, "error": f"{e}"},
                 status=500,
@@ -542,11 +543,46 @@ def get_user_by_id(request, id):
     try:
         # Fetch user details from MongoDB using ObjectId
         user = db.find_one({"_id": ObjectId(id)})
+        user_details={
+            "username":user.get('username') or user.get('name') or 'Guest',
+            "fullname":user.get("fullname") or "",
+            "email":user.get('email'),
+            "password":user.get('password') or '',
+            "phone":user.get('phone') or '',
+            "confPassWord":''
+        }
         if user:
             # Check if 'name' or 'username' exists and return the one available
             user_name = user.get('name') or user.get('username') or 'No Name Available'
-            return JsonResponse({"name": user_name}, status=200)
+            return JsonResponse({"name": user_name,"user":user_details,"success":True}, status=200)
         else:
             return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
+        print(e)
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt  # Temporarily disable CSRF checks for testing
+def update_user(request, id):
+    if request.method == 'PUT':
+        try:
+            updated_data = json.loads(request.body)
+            update_fields = {
+                "username": updated_data.get("username"),
+                "fullname": updated_data.get("fullname"),
+                "email": updated_data.get("email"),
+                "phone": updated_data.get("phone"),
+                "password": updated_data.get("password"),
+            }
+            
+            result = db.update_one({"_id": ObjectId(id)}, {"$set": update_fields})
+            
+            if result.modified_count > 0:
+                return JsonResponse({"success": True, "message": "User updated successfully"}, status=200)
+            else:
+                return JsonResponse({"error": "No changes made or user not found"}, status=400)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)

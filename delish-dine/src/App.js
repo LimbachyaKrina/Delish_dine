@@ -31,7 +31,7 @@ export default function App() {
         />
         <Route path="/booking/:name/:id" element={<Booking></Booking>} />
         <Route path="/about-us" element={<AboutUs></AboutUs>}/>
-        <Route path="/profile" element={<Profile></Profile>}/>
+        <Route path="/profile/:id" element={<Profile></Profile>}/>
       </Routes>
     </BrowserRouter>
   );
