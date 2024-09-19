@@ -28,7 +28,7 @@ const Navbar = () => {
         </div>
         <ul className="menu-list">
           <li>
-            <a href="/restaurant" className="nav-link navbarLinks">
+            <a href={`/restaurants/${id}`} className="nav-link navbarLinks">
               <FontAwesomeIcon icon={faUtensils} className="mr-2" />
               Restaurants
             </a>

@@ -42,6 +42,9 @@ export default function HomePage() {
         What's your mood for today?
       </div>
       <Carousel />
+      <div>
+        <img src="/img/Discount.avif" alt="Discount" style={{ height:"200vh", border:"2px solid black"}}></img>
+      </div>
       <RestaurantList />
     </>
   );
