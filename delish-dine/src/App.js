@@ -10,7 +10,8 @@ import RestaurantDetail from "./Pages/RestaurantDetail/RestaurantDetail";
 import Booking from "./Pages/Booking/Booking";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import Profile from "./Pages/Profile/Profile";
-
+import BookingPage from "./Pages/Booking/BookingPage";
+import BookList from "./Components/BookList/BookList";
 export default function App() {
   return (
     <BrowserRouter>
@@ -32,6 +33,8 @@ export default function App() {
         <Route path="/booking/:name/:id" element={<Booking></Booking>} />
         <Route path="/about-us" element={<AboutUs></AboutUs>}/>
         <Route path="/profile" element={<Profile></Profile>}/>
+        <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
+        <Route path="/bookings/:restaurantName" element={<BookList />} />
       </Routes>
     </BrowserRouter>
   );

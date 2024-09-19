@@ -40,6 +40,141 @@ carts = db["carts"]
 restaurants_collection = db["Restaurants"]
 
 
+bookings_collection = db['bookings']
+
+
+
+logger = logging.getLogger(__name__)
+# Define available time slots and their capacity
+TIME_SLOTS = ["12:00", "13:00", "14:00", "15:00", "16:00"]
+CAPACITY_PER_SLOT = 10
+MAX_PEOPLE = 10
+
+@csrf_exempt
+@require_POST
+def check_availability(request):
+    try:
+        # Log request body
+        logger.info(f"Received check availability request: {request.body.decode('utf-8')}")
+
+        data = json.loads(request.body)
+        restaurant_name = data.get('restaurant_name')
+        date_str = data.get('date')
+        time = data.get('time')
+        people = int(data.get('people', 0))
+
+        # Log extracted data
+        logger.info(f"Checking availability for {restaurant_name} on {date_str} at {time} for {people} people.")
+
+        # Validate inputs
+        if not restaurant_name or not date_str or not time or people <= 0:
+            logger.error("Missing or invalid required fields in the request")
+            return JsonResponse({'success': True, 'message': 'Invalid input'}, status=200)
+        
+        # Validate number of people
+        if people > MAX_PEOPLE:
+            logger.error("Number of people exceeds maximum allowed per booking")
+            return JsonResponse({'success': True, 'message': 'Number of people exceeds maximum allowed per booking'}, status=200)
+
+        # Validate date range
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            today = datetime.now().date()
+            max_date = today + timedelta(days=5)
+            if date < today or date > max_date:
+                logger.error("Date out of range")
+                return JsonResponse({'success': True, 'message': 'Date out of range. Only bookings for the next 5 days are allowed.'}, status=200)
+        except ValueError:
+            logger.error("Invalid date format")
+            return JsonResponse({'success': True, 'message': 'Invalid date format'}, status=200)
+
+        # Validate time slot
+        if time not in TIME_SLOTS:
+            logger.error("Invalid time slot")
+            return JsonResponse({'success': True, 'message': 'Invalid time slot'}, status=200)
+
+        # Check for existing bookings for that time slot
+        existing_bookings = bookings_collection.find({
+            'restaurant_name': restaurant_name,
+            'date': date_str,
+            'time': time
+        })
+
+        # Calculate total booked people for the given time slot
+        booked_people = sum([booking['people'] for booking in existing_bookings])
+        
+        # Calculate available capacity for the given slot
+        available_capacity = CAPACITY_PER_SLOT - booked_people
+        
+        logger.info(f"Available capacity: {available_capacity}")
+
+        # Check if the number of people can be accommodated
+        if available_capacity >= people:
+            return JsonResponse({'success': True, 'available_capacity': available_capacity})
+        else:
+            logger.info("Not enough capacity available")
+            return JsonResponse({'success': True, 'message': 'Not enough capacity available for the selected time slot'}, status=200)
+
+    except Exception as e:
+        logger.error(f"Error in check_availability: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+@csrf_exempt
+@require_POST
+def book_table(request):
+    try:
+        data = json.loads(request.body)
+        restaurant_name = data.get('restaurant_name')
+        date = data.get('date')
+        time = data.get('time')
+        people = int(data.get('people'))
+        user_id = data.get('userId')  # Get userId from the request
+        customer_name = data.get('name')  # Get the customer name
+
+        if not restaurant_name or not date or not time or not people or not user_id:
+            return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
+
+        # Add booking to MongoDB
+        booking = {
+            'restaurant_name': restaurant_name,
+            'date': date,
+            'time': time,
+            'people': people,
+            'user_id': user_id,  # Include userId in the booking
+            'customer_name': customer_name  # Store customer name
+        }
+
+        bookings_collection.insert_one(booking)
+        return JsonResponse({'success': True, 'message': 'Booking successful'})
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_GET
+def get_bookings(request, restaurant_name):
+    try:
+        # Query the MongoDB database for bookings by restaurant name
+        bookings_cursor = bookings_collection.find({"restaurant_name": restaurant_name})
+
+        bookings_list = list(bookings_cursor)
+        
+        if len(bookings_list) == 0:
+            return JsonResponse({'success': True, 'bookings': []})
+
+        # Convert MongoDB ObjectId to string and prepare for JSON response
+        for booking in bookings_list:
+            booking['_id'] = str(booking['_id'])
+
+        return JsonResponse({'success': True, 'bookings': bookings_list})
+
+    except Exception as e:
+        # Return error in case of an exception
+        logger.error(f"Error in get_bookings: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+
+
 def options(request, *args, **kwargs):
     response = JsonResponse({"status": "ok"})
     response["Access-Control-Allow-Origin"] = "http://localhost:3000"

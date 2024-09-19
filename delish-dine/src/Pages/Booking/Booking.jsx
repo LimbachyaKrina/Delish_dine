@@ -1,143 +1,186 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import styles from "./Booking.module.css";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-const Booking = () => {
-  const { name } = useParams(); // Fetch restaurant name from the URL
-  const [bookingDetails, setBookingDetails] = useState({
-    date: "",
-    time: "",
-    guests: 1,
-    name: "",
-    phone: "",
-    email: "",
+// Function to get CSRF token from cookie
+const getCSRFToken = () => {
+  const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+  return cookieValue ? cookieValue.split('=')[1] : null;
+};
+
+const BookingPage = () => {
+  const { restaurantName, userId } = useParams(); // Retrieve restaurant name and userId from URL
+  const [formData, setFormData] = useState({
+    name: '',
+    date: '',
+    time: '',
+    people: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [availableCapacity, setAvailableCapacity] = useState(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setBookingDetails((prevDetails) => ({
-      ...prevDetails,
+    setFormData({
+      ...formData,
       [name]: value,
-    }));
+    });
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Include CSRF token in the request header
+  const csrfToken = getCSRFToken();
 
-    axios
-      .post(`http://localhost:8000/api/book_table/${name}/`, bookingDetails)
-      .then((response) => {
-        setIsSuccess(true);
-        setErrorMessage("");
-        setBookingDetails({
-          date: "",
-          time: "",
-          guests: 1,
-          name: "",
-          phone: "",
-          email: "",
-        });
-      })
-      .catch((error) => {
-        setErrorMessage("Failed to book the table. Please try again.");
-        console.error("Error booking table:", error);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+  const checkAvailability = async () => {
+    setError(''); // Reset error message
+    try {
+      const requestData = {
+        restaurant_name: restaurantName,
+        date: formData.date,
+        time: formData.time,
+        people: parseInt(formData.people, 10),
+      };
+
+      console.log('Sending request data:', requestData); // Log request data
+
+      const response = await axios.post(
+        'http://localhost:8000/api/check_availability/',
+        requestData,
+        {
+          headers: {
+            'X-CSRFToken': csrfToken,
+          },
+        }
+      );
+
+      console.log('Response:', response);
+
+      if (response.data.success) {
+        if (response.data.message) {
+          setAvailableCapacity(null);
+          setError(response.data.message);
+        } else {
+          setAvailableCapacity(response.data.available_capacity);
+          setError('');
+        }
+      } else {
+        setAvailableCapacity(null);
+        setError('An unexpected error occurred.');
+      }
+    } catch (error) {
+      setError('Error checking availability: ' + (error.response?.data?.error || error.message));
+      console.error('Error checking availability:', error);
+    }
+  };
+
+  const bookTable = async () => {
+    setError(''); // Reset error message
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/book_table/',
+        {
+          restaurant_name: restaurantName,
+          date: formData.date,
+          time: formData.time,
+          people: parseInt(formData.people, 10),
+          name: formData.name,
+          userId: userId,  // Include userId in the booking request
+        },
+        {
+          headers: {
+            'X-CSRFToken': csrfToken,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setBookingSuccess(true);
+        setAvailableCapacity(null);
+        setFormData({
+          name: '',
+          date: '',
+          time: '',
+          people: '',
+        }); // Reset form data
+      } else {
+        setError('Error booking table.');
+      }
+    } catch (error) {
+      setError('Error booking table: ' + (error.response?.data?.error || error.message));
+      console.error('Error booking table:', error);
+    }
   };
 
   return (
-    <div className={styles.BookingContainer}>
-      <h2 className={styles.heading}>
-        Book a Table at {name}
-      </h2>
-      <form className={styles.bookingForm} onSubmit={handleFormSubmit}>
-        <div className={styles.formGroup}>
-          <label htmlFor="date">Date</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={bookingDetails.date}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="time">Time</label>
-          <input
-            type="time"
-            id="time"
-            name="time"
-            value={bookingDetails.time}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="guests">Number of Guests</label>
-          <input
-            type="number"
-            id="guests"
-            name="guests"
-            value={bookingDetails.guests}
-            min="1"
-            max="20"
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="name">Your Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={bookingDetails.name}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="phone">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={bookingDetails.phone}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={bookingDetails.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className={styles.submitButton}
-          disabled={isSubmitting}
+    <div>
+      <h1>Book a Table at {restaurantName}</h1>
+      <form>
+        <label>Name:</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+          required
+        />
+
+        <label>Date:</label>
+        <input
+          type="date"
+          name="date"
+          value={formData.date}
+          onChange={handleInputChange}
+          required
+        />
+
+        <label>Time:</label>
+        <select
+          name="time"
+          value={formData.time}
+          onChange={handleInputChange}
+          required
         >
-          {isSubmitting ? "Booking..." : "Book Now"}
+          <option value="">Select a time slot</option>
+          <option value="12:00">12:00</option>
+          <option value="13:00">13:00</option>
+          <option value="14:00">14:00</option>
+          <option value="15:00">15:00</option>
+          <option value="16:00">16:00</option>
+        </select>
+
+        <label>Number of People:</label>
+        <input
+          type="number"
+          name="people"
+          value={formData.people}
+          onChange={handleInputChange}
+          required
+        />
+
+        <button type="button" onClick={checkAvailability}>
+          Check Availability
         </button>
       </form>
-      {isSuccess && <p className={styles.successMessage}>Table booked successfully!</p>}
-      {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
+
+      {availableCapacity !== null && (
+        <div>
+          {availableCapacity > 0 ? (
+            <>
+              <p>Available Capacity for {formData.time}: {availableCapacity} people</p>
+              <button type="button" onClick={bookTable}>
+                Book Table
+              </button>
+            </>
+          ) : (
+            <p>No available capacity for this slot. Please choose another time slot.</p>
+          )}
+        </div>
+      )}
+
+      {bookingSuccess && <p>Booking successful!</p>}
+      {error && <p>{error}</p>}
     </div>
   );
 };
 
-export default Booking;
+export default BookingPage;

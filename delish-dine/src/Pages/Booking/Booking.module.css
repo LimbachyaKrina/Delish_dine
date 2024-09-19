@@ -1,78 +1,65 @@
-.tableBookingContainer {
+/* BookingPage.css */
+.booking-container {
   max-width: 600px;
-  margin: 0 auto;
+  margin: auto;
   padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.heading {
+h1 {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
   color: #333;
+  margin-bottom: 20px;
 }
 
-.bookingForm {
+form {
   display: flex;
   flex-direction: column;
-}
-
-.formGroup {
-  margin-bottom: 15px;
+  gap: 15px;
 }
 
 label {
   font-size: 16px;
+  font-weight: bold;
   color: #333;
-  margin-bottom: 5px;
-  display: block;
 }
 
-input {
-  width: 100%;
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"] {
   padding: 10px;
   font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 5px;
-  transition: border-color 0.3s ease-in-out;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.submitButton {
-  padding: 12px;
-  background-color: #007bff;
+button {
+  padding: 10px 20px;
+  font-size: 16px;
   color: #fff;
+  background-color: #007bff;
   border: none;
-  border-radius: 5px;
-  font-size: 18px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: background-color 0.3s ease;
 }
 
-.submitButton:hover {
+button:hover {
   background-color: #0056b3;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.submitButton:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.successMessage {
-  color: #28a745;
+.error-message,
+.success-message {
+  color: #d9534f; /* Bootstrap red */
+  font-weight: bold;
   text-align: center;
-  margin-top: 20px;
 }
 
-.errorMessage {
-  color: #dc3545;
-  text-align: center;
-  margin-top: 20px;
+.success-message {
+  color: #5bc0de; /* Bootstrap cyan */
 }
