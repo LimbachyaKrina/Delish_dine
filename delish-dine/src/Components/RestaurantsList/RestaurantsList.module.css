@@ -20,7 +20,7 @@
   text-align: center;
   margin-top: 20px;
   padding: 0px;
-  box-shadow: 0px 5px 10px -5px rgba(76, 75, 75, 0.6);
+  /* box-shadow: 0px 5px 10px -5px rgba(76, 75, 75, 0.6); */
 }
 
 .restaurantsContainer {
