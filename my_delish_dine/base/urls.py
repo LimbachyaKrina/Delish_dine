@@ -32,10 +32,6 @@ urlpatterns = [
     ),
     
     path("add_dish/", add_dish, name="add-dish"),
-#    path('checkAvailability/<str:name>/', check_availability, name='check_availability'),
-#     path('bookTable/<str:name>/', book_table, name='book_table'),
-#     path('getBookings/<str:name>/', get_bookings, name='get_bookings'),]
-
 
 
 path('api/check_availability/', check_availability, name='check_availability'),
