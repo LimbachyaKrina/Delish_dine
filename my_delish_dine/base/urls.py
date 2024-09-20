@@ -15,7 +15,7 @@ from .views import (
     update_quantity,
     get_images_for_restaurants,
     get_user_by_id,get_restaurants,
-    get_restaurant_by_name,
+    get_restaurant_by_name,update_orders
 )
 
 # ,send_message
@@ -47,7 +47,7 @@ urlpatterns = [
         "api/get_restaurant_by_name/<str:name>/<str:user_id>",
         get_restaurant_by_name,
         name="get_restaurant_by_name",
-    )
-
+    ),
+path('update_orders/', update_orders, name='update_orders'),
 ]
 

@@ -690,103 +690,102 @@ def get_user_by_id(request, id):
 
 
 
+# from django.http import JsonResponse
+# from rest_framework.decorators import api_view
+
+# @api_view(['POST'])
+# def update_orders(request):
+#     if request.method == 'POST':
+#         items = request.data.get('items', [])
+#         try:
+#             for item in items:
+#                 # Find the cart item by its unique identifier (e.g., item ID)
+#                 cart_item = carts.objects.get(id=item['id'])  # Use the actual field for identification
+#                 cart_item.conf_orders = True  # Set conf_orders to true
+#                 cart_item.save()  # Save the changes
+
+#             return JsonResponse({'success': True, 'message': 'Orders updated successfully!'})
+#         except Exception as e:
+#             return JsonResponse({'success': False, 'error': str(e)})
 
 
-from django.conf import settings
-from django.shortcuts import render, redirect
-from django.views import View
-import paypalrestsdk
-from pymongo import MongoClient
 
-# Configure PayPal SDK
-paypalrestsdk.configure({
-    "mode": settings.PAYPAL_MODE,  # 'sandbox' for testing, 'live' for production
-    "client_id": settings.PAYPAL_CLIENT_ID,
-    "client_secret": settings.PAYPAL_CLIENT_SECRET
-})
+# @api_view(['POST'])
+# def update_orders(request):
+#     if request.method == 'POST':
+#         items = request.data.get('items', [])
+#         try:
+#             for item in items:
+#                 # Assuming '_id' is the key you're using; adjust if necessary
+#                 cart_item = carts.find_one({"_id": item['id']})  # Ensure this is correct
+#                 if cart_item:
+#                     cart_item['conf_orders'] = True  # Set conf_orders to true
+#                     carts.update_one({"_id": item['id']}, {"$set": cart_item})  # Update the item
+
+#             return JsonResponse({'success': True, 'message': 'Orders updated successfully!'})
+#         except Exception as e:
+#             return JsonResponse({'success': False, 'error': str(e)})
 
 
-payments_collection = db["payments"]  # Add this for storing payment info
+# from django.http import JsonResponse
+# from rest_framework.decorators import api_view
+# from bson.objectid import ObjectId
 
-class PaymentView(View):
-    def get(self, request):
-        # Render the payment form
-        return render(request, 'payments/payment.html')
+# @api_view(['POST'])
+# def update_orders(request):
+#     if request.method == 'POST':
+#         items = request.data.get('items', [])
+#         if not items:
+#             return JsonResponse({'success': False, 'error': 'No items provided'})
 
-    def post(self, request):
-        # Get the amount from the payment form (or can be from the cart or booking info)
-        amount = request.POST.get('amount')
-        booking_id = request.POST.get('booking_id')  # Or cart_id if you use cart
-        
-        # Fetch booking/cart info if needed (this can be customized as per your flow)
-        booking_info = bookings_collection.find_one({"_id": booking_id})
-        if not booking_info:
-            return redirect('payment_failure')
+#         try:
+#             print(f"Received items: {items}")  # Log the entire items array
+#             for item in items:
+#                 # Adjust to access the correct field for ID
+#                 item_id = item.get('id')  # Change 'id' to the correct field name if needed
+#                 if not item_id:
+#                     print("Item does not have an 'id' field.")
+#                     continue  # Skip this iteration if 'id' is not found
 
-        # Create a new PayPal payment
-        payment = paypalrestsdk.Payment({
-            "intent": "sale",
-            "payer": {
-                "payment_method": "paypal"
-            },
-            "transactions": [{
-                "amount": {
-                    "total": amount,
-                    "currency": "USD"
-                },
-                "description": f"Payment for booking at {booking_info['restaurant_name']}"
-            }],
-            "redirect_urls": {
-                "return_url": request.build_absolute_uri('/payment-success/'),
-                "cancel_url": request.build_absolute_uri('/payment-failure/')
-            }
-        })
+#                 print(f"Updating item ID: {item_id}")  # Debugging line
+#                 cart_item = carts.find_one({"_id": ObjectId(item_id)})  # Ensure _id is an ObjectId
+#                 if cart_item:
+#                     print(f"Found item: {cart_item}")  # Log found item
+#                     result = carts.update_one({"_id": ObjectId(item_id)}, {"$set": {"conf_orders": True}})
+#                     if result.matched_count == 0:
+#                         print(f"No document found with ID {item_id}")
+#                     else:
+#                         print(f"Updated document with ID {item_id}")
+#                 else:
+#                     print(f"Item with ID {item_id} not found.")
 
-        # If the payment is successfully created
-        if payment.create():
-            # Save payment info in MongoDB collection
-            payment_record = {
-                'amount': amount,
-                'paypal_payment_id': payment.id,
-                'booking_id': booking_id,
-                'success': False
-            }
-            payments_collection.insert_one(payment_record)
+#             return JsonResponse({'success': True, 'message': 'Orders updated successfully!'})
+#         except Exception as e:
+#             print(f"Error updating orders: {str(e)}")  # Log error for debugging
+#             return JsonResponse({'success': False, 'error': str(e)})
 
-            # Find the PayPal approval URL and redirect the user
-            for link in payment.links:
-                if link.rel == "approval_url":
-                    approval_url = link.href
-                    return redirect(approval_url)
 
-        # If payment creation failed, redirect to payment failure page
-        return redirect('payment_failure')
 
-def payment_success(request):
-    # Get payment info from PayPal return parameters
-    payment_id = request.GET.get('paymentId')
-    payer_id = request.GET.get('PayerID')
 
-    # Find the payment by ID in PayPal
-    payment = paypalrestsdk.Payment.find(payment_id)
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from bson.objectid import ObjectId
 
-    # Execute the payment
-    if payment.execute({"payer_id": payer_id}):
-        # Update payment status in MongoDB to success
-        payments_collection.update_one(
-            {'paypal_payment_id': payment_id},
-            {'$set': {'success': True}}
-        )
+@api_view(['POST'])
+def update_orders(request):
+    if request.method == 'POST':
+        user_id = json.loads(request.body).get('id', [])
 
-        # Retrieve the payment info for display (like amount, booking details)
-        payment_record = payments_collection.find_one({'paypal_payment_id': payment_id})
-        payment_amount = payment_record['amount']
-
-        return render(request, 'payments/payment_success.html', {'amount': payment_amount})
-
-    # If payment execution failed, redirect to failure page
-    return redirect('payment_failure')
-
-def payment_failure(request):
-    # Simply render the payment failure page
-    return render(request, 'payments/payment_failure.html')
+        try:
+            cart = carts.find_one({"user_id":user_id})
+            items = list(cart["items"]) or []
+            conf_ord = list(cart["conf_orders"]) or []
+            date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            item_entry = {date:items}
+            conf_ord.append(item_entry)
+            carts.update_one({"user_id":user_id},{"$set":{"conf_orders":conf_ord}})
+            
+            return JsonResponse({'success': True, 'message': "Placed order successfully!!!!"})
+        except Exception as e:
+            print(f"Error updating orders: {str(e)}")
+            return JsonResponse({'success': False, 'error': str(e)})
