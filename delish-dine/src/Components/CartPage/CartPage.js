@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate ,useParams } from "react-router-dom";
 import "./CartPage.css";
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
+
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -98,7 +100,7 @@ const CartPage = () => {
   };
 
   const handlePlaceOrder = () => {
-    alert("Order placed successfully!");
+    navigate("/billing/"+id)
   };
 
   const calculateTotalPrice = () => {

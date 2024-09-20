@@ -224,9 +224,15 @@ def SignIn(request):
         user = userbase.find_one({"username": data["username"]})
         username = user.get("username")
         password = user.get("password")
+        act_password = data["password"]
+        if isinstance(password, str):
+            password = password.encode("utf-8")
+        if isinstance(act_password, str):
+            act_password = act_password.encode("utf-8")
+        
         object_id = str(user.get("_id"))
         print(object_id)
-        if bcrypt.checkpw(data["password"].encode("utf-8"), password.encode("utf-8")):
+        if bcrypt.checkpw(act_password, password):
             return JsonResponse(
                 {"message": f"Welcome {username}", "success": True, "id": object_id},
                 status=200,
@@ -292,7 +298,6 @@ def SignUp(request):
     return JsonResponse(
         {"error": "Invalid request method", "success": False}, status=405
     )
-
 
 @csrf_exempt
 @api_view(["POST"])
@@ -700,11 +705,91 @@ def get_user_by_id(request, id):
     try:
         # Fetch user details from MongoDB using ObjectId
         user = db.find_one({"_id": ObjectId(id)})
+        password = user.get('password')
+        if not isinstance(password,str) and password:
+            password=password.decode("utf-8")
+        user_details = {
+            "username":user.get('username') or user.get('name'),
+            "fullname":user.get('fullname') or '',
+            "email":user.get('email'),
+            "phone":user.get('phone') or "",
+            "oldPassword":password or "",
+            "newPassword":"",
+        }
         if user:
             # Check if 'name' or 'username' exists and return the one available
-            user_name = user.get('name') or user.get('username') or 'No Name Available'
-            return JsonResponse({"name": user_name}, status=200)
+            return JsonResponse({"name": user_details["username"],"user":user_details,"success":True}, status=200)
         else:
             return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+        
+@api_view(['POST'])
+@csrf_exempt
+def update_orders(request):
+    if request.method == 'POST':
+        user_id = json.loads(request.body).get('id', [])
+
+        try:
+            cart = carts.find_one({"user_id":user_id})
+            items = list(cart["items"]) or []
+            conf_ord = list(cart["conf_orders"]) or []
+            date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            item_entry = {date:items}
+            conf_ord.append(item_entry)
+            carts.update_one({"user_id":user_id},{"$set":{"conf_orders":conf_ord}})
+            carts.update_one({"user_id":user_id},{"$set":{"items":[]}})
+            return JsonResponse({'success': True, 'message': "Placed order successfully!!!!"})
+        except Exception as error:
+            return JsonResponse({'success': False, 'error': str(error)})
+
+
+@csrf_exempt
+@api_view(["POST"])
+def update_user(request):
+    if request.method=="POST":
+        try:
+            data = json.loads(request.body)
+            user_details = data["user_details"]
+            user_id = data["id"]
+            user=userbase.find_one({"_id":ObjectId(user_id)})
+            oldPassword = user_details["oldPassword"]
+            if isinstance(oldPassword, str):
+                oldPassword = oldPassword.encode("utf-8")
+            newPassword = user_details["newPassword"]
+            fullname = user_details.get("fullname") or ""
+            phone = user_details.get("phone") or ""
+            print(user_details)
+            if phone and (len(phone) != 10 or not phone.isdigit()):
+                    return JsonResponse(
+                        {"error": "Invalid phone number!!", "success": False},
+                        status=400,
+                    )
+            if oldPassword and newPassword:
+                password = user["password"]
+                if isinstance(password, str):
+                    password = password.encode("utf-8")
+                if bcrypt.checkpw(oldPassword,password):
+                    userbase.update_one({"_id":ObjectId(user_id)},{"$set":{
+                        "password":bcrypt.hashpw(
+                                    newPassword.encode("utf-8"), bcrypt.gensalt()
+                        ),
+                        "phone":phone,
+                        "fullname":fullname
+                    }})
+            else:
+                userbase.update_one({"_id":ObjectId(user_id)},{"$set":{
+                        "phone":phone,
+                        "fullname":fullname
+                    }})
+            new_details = {
+                "username":user_details["username"],
+                "email":user_details["email"],
+                "phone":phone,
+                "fullname":fullname,
+                "oldPassword":"",
+                "newPassword":""
+            }
+            return JsonResponse({"success":True,"user_details":new_details,"message":"Successfully changed!!!!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
