@@ -1,5 +1,6 @@
 .container {
     display: flex;
+    background-color: red !important;
     justify-content: center;
     margin-bottom: 50vh;
 }

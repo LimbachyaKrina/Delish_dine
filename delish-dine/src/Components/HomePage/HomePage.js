@@ -6,16 +6,18 @@ import RestaurantList from "../../Components/RestaurantsList/RestaurantList";
 
 export default function HomePage() {
   const { id } = useParams();
-  const [userName, setUserName] = useState('');
-  
+  const [userName, setUserName] = useState("");
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         // Use template literals to properly interpolate the id
-        const response = await axios.get(`http://localhost:8000/api/get_user_by_id/${id}/`);
+        const response = await axios.get(
+          `http://localhost:8000/api/get_user_by_id/${id}/`
+        );
         setUserName(response.data.name);
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
       }
     };
 
@@ -26,26 +28,37 @@ export default function HomePage() {
 
   return (
     <>
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "50px"
-      }}>
-        Welcome {userName ? userName : 'Guest'}
+      {" "}
+      <div class="mainDivHome" style={{backgroundColor:"#FEF3E2"}}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "50px",
+          }}
+
+          class="fontStyle"
+        >
+          Welcome {userName ? userName : "Guest"}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontSize: "50px",
+          }}
+        ></div>
+        <Carousel />
+        <div>
+          <img
+            src="/img/Discount.avif"
+            alt="Discount"
+            style={{ height: "250px", width: "200vh", paddingLeft: "30px" }}
+          ></img>
+        </div>
+        <RestaurantList />
       </div>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        fontSize: "50px"
-      }}>
-        What's your mood for today?
-      </div>
-      <Carousel />
-      <div>
-        <img src="/img/Discount.avif" alt="Discount" style={{ height:"250px", width:"200vh", paddingLeft:"30px"}}></img>
-      </div>
-      <RestaurantList />
     </>
   );
 }

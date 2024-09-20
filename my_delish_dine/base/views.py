@@ -755,8 +755,25 @@ def update_user(request):
             }
             return JsonResponse({"success":True,"user_details":new_details,"message":"Successfully changed!!!!"})
         except Exception as e:
-            raise e
             return JsonResponse({"error": str(e)}, status=500)
                 
+@api_view(['POST'])
+@csrf_exempt
+def update_orders(request):
+    if request.method == 'POST':
+        user_id = json.loads(request.body).get('id', [])
+
+        try:
+            cart = carts.find_one({"user_id":user_id})
+            items = list(cart["items"]) or []
+            conf_ord = list(cart["conf_orders"]) or []
+            date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            item_entry = {date:items}
+            conf_ord.append(item_entry)
+            carts.update_one({"user_id":user_id},{"$set":{"conf_orders":conf_ord}})
+            
+            return JsonResponse({'success': True, 'message': "Placed order successfully!!!!"})
+        except Exception as error:
+            return JsonResponse({'success': False, 'error': str(error)})
             
         

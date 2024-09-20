@@ -1,0 +1,88 @@
+/* BillingPage.css */
+
+.billing-page {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.billing-header {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.billing-content {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.billing-table th,
+.billing-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.billing-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.billing-summary {
+  margin-bottom: 20px;
+}
+
+.billing-summary h3 {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+}
+
+.billing-summary h3 span {
+  font-weight: normal;
+}
+
+.billing-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn-order {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-order:hover {
+  background-color: #0056b3;
+}
+
+#paypal-button-container {
+  margin-top: 20px;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 50px;
+}

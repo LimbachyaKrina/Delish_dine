@@ -11,6 +11,7 @@ import AboutUs from "./Pages/AboutUs/AboutUs";
 import Profile from "./Pages/Profile/Profile";
 import BookingPage from "./Pages/Booking/Booking";
 import BookList from "./Components/BookList/BookList";
+import Bill from "./Pages/Bill/Bill";
 export default function App() {
   return (
     <BrowserRouter>
@@ -29,10 +30,11 @@ export default function App() {
           path="/restaurants/:name/:id"
           element={<RestaurantDetail></RestaurantDetail>}
         />
-        <Route path="/about-us" element={<AboutUs></AboutUs>}/>
-        <Route path="/profile/:id" element={<Profile></Profile>}/>
+        <Route path="/about-us" element={<AboutUs></AboutUs>} />
+        <Route path="/profile/:id" element={<Profile></Profile>} />
         <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
         <Route path="/bookings/:restaurantName" element={<BookList />} />
+        <Route path="/billing/:id" element={<Bill />} />
       </Routes>
     </BrowserRouter>
   );
