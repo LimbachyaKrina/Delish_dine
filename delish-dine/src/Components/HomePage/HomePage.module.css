@@ -1,0 +1,128 @@
+.oxygenbold1 {
+  font-family: "Rye", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.mainDivHome {
+  background-color: #fef3e2;
+}
+
+/* Centering welcome text */
+.welcomeText {
+  font-weight: 900;
+  align-items: center;
+  font-size: 50px;
+  margin-bottom: 20px;
+  padding-left: 100px;
+  text-align: center;
+  padding-top: 100px;
+}
+
+/* Flexbox for imgDiv */
+.imgDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-wrap: wrap; /* Allow wrapping of elements on smaller screens */
+}
+
+/* Styling for h1 */
+.imgDiv h1 {
+  font-size: 50px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Flexbox for the image */
+.imageRight {
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50px;
+  padding-right: 50px;
+}
+
+/* Image styling */
+.imageRight img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.imageContainer img {
+  height: 250px;
+  width: 200vh;
+  padding-left: 30px;
+  margin-top: 100px;
+}
+
+.oxygenbold {
+  font-family: "Oxygen", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Add responsive styles here */
+@media (max-width: 768px) {
+  /* Smaller font size and less padding for smaller screens */
+  .welcomeText {
+    font-size: 30px;
+    padding-left: 20px;
+  }
+
+  /* Stack text and image vertically on smaller screens */
+  .imgDiv {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Resize image for smaller screens */
+  .imageRight {
+    width: 300px;
+    height: 300px;
+    padding-top: 20px;
+    padding-right: 0; /* Remove padding on smaller screens */
+  }
+
+  /* Adjust image inside the container */
+  .imageRight img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further adjustments for very small screens */
+  .welcomeText {
+    font-size: 24px;
+    padding-left: 10px;
+  }
+
+  .imageRight {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.mainDivHome {
+  background-color: #fef3e2;
+  background-image: url("../../../public/img/home/bg.jpg"); /* Your background image path */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.pTitle {
+  font-size: 20px;
+  color: #800000;
+}

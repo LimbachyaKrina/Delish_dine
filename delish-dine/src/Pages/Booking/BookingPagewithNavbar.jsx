@@ -1,13 +1,13 @@
 import React from "react";
 import Layout from "../../Layout/Layout";
-import AboutUs from "../../Components/AboutUs/AboutUs";
+import BookingPage from "./BookingPage";
 
-const Cart = () => {
+const Booking = () => {
   return (
     <Layout showFooter={true}>
-      <AboutUs></AboutUs>
+      <BookingPage></BookingPage>
     </Layout>
   );
 };
 
-export default Cart;
+export default Booking;
