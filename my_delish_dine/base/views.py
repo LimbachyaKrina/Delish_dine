@@ -505,14 +505,14 @@ def get_cart(request):
     if request.method == "POST":
         data = json.loads(request.body)
         user_id = data["id"]
-        user_cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})[
-            "items"
-        ]
+        user_cart = carts.find_one({"user_id": user_id}, {"items": 1, "_id": 0})
+        if user_cart:
+            user_cart=list(user_cart["items"])
         return JsonResponse(
             {
                 "success": True,
                 "message": "Test view",
-                "cart": list(user_cart)
+                "cart": user_cart or []
             },
             status=200,
         )
