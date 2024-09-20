@@ -30,6 +30,14 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+import json
+import logging
+from datetime import datetime, timedelta
+
+
 from bson import ObjectId
 
 load_dotenv()
@@ -121,36 +129,48 @@ def check_availability(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
 
-@csrf_exempt
-@require_POST
-def book_table(request):
+@csrf_exempt  # Exempts CSRF for testing purposes; remove this in production and handle CSRF properly.
+@require_POST  # Only allows POST requests
+def book_please(request):
     try:
+        # Parse the JSON body from the request
         data = json.loads(request.body)
+        
+        # Extracting required fields from the JSON data
         restaurant_name = data.get('restaurant_name')
         date = data.get('date')
         time = data.get('time')
-        people = int(data.get('people'))
-        user_id = data.get('userId')  # Get userId from the request
-        customer_name = data.get('name')  # Get the customer name
+        people = data.get('people')
+        user_id = data.get('userId')
+        customer_name = data.get('name')
 
-        if not restaurant_name or not date or not time or not people or not user_id:
+        # Validate that all required fields are present
+        if not restaurant_name or not date or not time or not people or not user_id or not customer_name:
             return JsonResponse({'success': False, 'error': 'Missing required fields'}, status=400)
 
-        # Add booking to MongoDB
+        # Convert the number of people to integer for storing
+        people = int(people)
+
+        # Construct the booking document to store in MongoDB
         booking = {
             'restaurant_name': restaurant_name,
             'date': date,
             'time': time,
             'people': people,
-            'user_id': user_id,  # Include userId in the booking
-            'customer_name': customer_name  # Store customer name
+            'user_id': user_id,
+            'customer_name': customer_name
         }
 
+        # Insert the booking into MongoDB
         bookings_collection.insert_one(booking)
-        return JsonResponse({'success': True, 'message': 'Booking successful'})
-    
+
+        # Return a success response if booking is saved
+        return JsonResponse({'success': True, 'message': 'Booking successful'}, status=201)
+
     except Exception as e:
+        # If an error occurs, log it and return an error response
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 
 
 @require_GET

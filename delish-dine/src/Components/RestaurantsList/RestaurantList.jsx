@@ -3,7 +3,8 @@ import axios from "axios";
 import styles from "./RestaurantsList.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 
-const RestaurantsList = () => {
+const RestaurantsList = (props) => {
+  const { booking } = props;
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const navigate = useNavigate();
@@ -11,7 +12,11 @@ const RestaurantsList = () => {
 
   const handleCardClick = (name) => {
     console.log(`/restaurants/${name}/${id}/`);
-    navigate(`/restaurants/${name}/${id}`);
+    if (booking) {
+      navigate(`/book/${name}/${id}`);
+    } else {
+      navigate(`/restaurants/${name}/${id}`);
+    }
   };
 
   useEffect(() => {
