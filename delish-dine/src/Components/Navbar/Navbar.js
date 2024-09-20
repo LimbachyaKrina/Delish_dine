@@ -6,7 +6,7 @@ import { faShoppingCart, faUser, faUtensils, faInfoCircle, faCalendarCheck, faBa
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { name,id } = useParams();
+  const { id } = useParams();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${isOpen ? 'open' : ''}`}>
       <div className="content">
-        <a href="/home" className="logo">
+        <a href={`/home/${id}`} className="logo">
           <img src="/img/LogoWhiteBgTrans.png" alt="Your Logo" />
         </a>
       </div>
@@ -34,7 +34,7 @@ const Navbar = () => {
             </a>
           </li>
           <li>
-            <a href="/bookings" className="nav-link navbarLinks">
+            <a href={`/bookings/${id}`} className="nav-link navbarLinks">
               <FontAwesomeIcon icon={faCalendarCheck} className="mr-2" />
               Bookings
             </a>

@@ -9,13 +9,15 @@ from .views import (
     get_cart,
     get_restaurants,
     get_restaurant_by_name,
-    book_table,
+    book_please,
     add_dish,
     remove_dish,
     update_quantity,
     get_images_for_restaurants,
     get_user_by_id,get_restaurants,
     get_restaurant_by_name,
+    check_availability,
+    get_bookings,
 )
 
 # ,send_message
@@ -34,7 +36,6 @@ urlpatterns = [
         get_restaurant_by_name,
         name="get_restaurant_by_name",
     ),
-    path("api/book_table/<str:name>/", book_table, name="book_table"),
     path("add_dish/", add_dish, name="add-dish"),
     path("removeDish/", remove_dish, name="remove-dish"),
     path("update_quantity/", update_quantity, name="update-quantity"),
@@ -47,6 +48,9 @@ urlpatterns = [
         "api/get_restaurant_by_name/<str:name>/<str:user_id>",
         get_restaurant_by_name,
         name="get_restaurant_by_name",
-    )
+    ),
+    path("check_availability/", check_availability, name="check_availability"),
+    path('book_please/', book_please, name='book_please'),
+    path('api/get_bookings/<str:restaurant_name>/', get_bookings, name='get_bookings'),
 ]
 

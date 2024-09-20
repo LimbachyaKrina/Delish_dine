@@ -23,8 +23,8 @@ const BookingsPage = () => {
           setError('Error fetching bookings.');
         }
       } catch (err) {
-        console.error('Error fetching bookings:', err);
-        setError('Error fetching bookings.');
+        console.error('Error fetching bookings: as there is no data', err);
+        setError('No bookings right now');
       }
     };
 
@@ -33,9 +33,11 @@ const BookingsPage = () => {
 
   return (
     <div>
-      <h1>Bookings for {restaurantName}</h1>
+      {/* <h1>Bookings for {restaurantName}</h1> */}
 
       {error && <p>{error}</p>}
+      {/* To add styling here */}
+      
 
       {bookings.length > 0 ? (
         <div>
