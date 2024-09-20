@@ -1,0 +1,196 @@
+.oxygenbold {
+    font-family: "Oxygen", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .aboutUs {
+    color: #333;
+    background-color: #fbf6e0;
+  }
+  
+  .aboutUsHeader {
+    text-align: center;
+    padding: 100px 20px 40px;
+    background-size: cover;
+    background-position: center;
+    color: rgb(255, 255, 255);
+    animation: fadeIn 1s ease-in-out;
+  }
+  .aboutUsHeader {
+    background: url("../../../public/img/aboutus.jpg");
+    background-size: cover;
+    /* ... other styles ... */
+   
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    animation: fadeInBorder 2s ease-in-out;
+  }
+  
+  @keyframes fadeInBorder {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .pageTitle {
+    font-size: 48px;
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 2px;
+    animation: slideInFromLeft 1s ease-in-out;
+  }
+  
+  .aboutUsHeader p {
+    font-size: 20px;
+    margin-top: 10px;
+    font-style: italic;
+    animation: slideInFromRight 1s ease-in-out;
+  }
+  
+  .companyInfo,
+  .ourMission,
+  .ourValues,
+  .services,
+  .team {
+    padding: 20px;
+    border-radius: 8px;
+    animation: fadeIn 1s ease-in-out;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #720800;
+    text-align: center;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  p {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .cardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .card {
+    background-color: #faf6f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+    flex: 1 1 300px;
+    max-width: 300px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1.2s ease-in-out forwards;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card strong {
+    font-size: 20px;
+    color: #a50404;
+    display: block;
+    margin-bottom: 10px;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .card p {
+    font-size: 16px;
+    color: #333;
+    animation: fadeIn 1.5s ease-in-out;
+    text-align: center;
+  }
+  
+  .team {
+    text-align: center;
+  }
+  
+  .team p {
+    font-size: 18px;
+    line-height: 1.6;
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInFromLeft {
+    0% {
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    0% {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .pageTitle {
+      font-size: 36px;
+    }
+  
+    h2 {
+      font-size: 28px;
+    }
+  
+    p {
+      font-size: 16px;
+    }
+  
+    .cardsContainer {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .card {
+      max-width: 100%;
+    }
+  }

@@ -40,7 +40,7 @@ const Navbar = () => {
             </a>
           </li>
           <li>
-            <a href="/about-us" className="nav-link navbarLinks">
+            <a href={`/about-us/${id}`} className="nav-link navbarLinks">
               <FontAwesomeIcon icon={faInfoCircle} className="mr-2" />
               About Us
             </a>

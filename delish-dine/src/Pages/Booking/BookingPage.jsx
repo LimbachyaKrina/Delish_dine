@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-
-
+import styles from './BookingPage.module.css'; // Import the module CSS
 
 const BookingPage = () => {
-  const { restaurantName, userId } = useParams();
+  const { name, id } = useParams();
   const [formData, setFormData] = useState({
     name: '',
     date: '',
@@ -24,13 +23,12 @@ const BookingPage = () => {
     });
   };
 
-
   const checkAvailability = async () => {
     setError(''); // Reset error message
     setAvailableCapacity(null); // Reset available capacity
     try {
       const requestData = {
-        restaurant_name: restaurantName,
+        restaurant_name: name,
         date: formData.date,
         time: formData.time,
         people: parseInt(formData.people, 10),
@@ -71,16 +69,16 @@ const BookingPage = () => {
     console.log("This is book table thing")
     setError(''); // Reset error message
     try {
-        const book_data =  {
-            restaurant_name: restaurantName,
-            date: formData.date,
-            time: formData.time,
-            people: parseInt(formData.people, 10),
-            name: formData.name,
-            userId: userId,
-          }
+      const book_data = {
+        restaurant_name: name,
+        date: formData.date,
+        time: formData.time,
+        people: parseInt(formData.people, 10),
+        name: formData.name,
+        userId: id,
+      }
 
-          console.log(book_data)
+      console.log(book_data)
       const response = await axios.post(
         'http://localhost:8000/book_please/', book_data,
         {
@@ -109,8 +107,8 @@ const BookingPage = () => {
   };
 
   return (
-    <div>
-      <h1>Book a Table at {restaurantName}</h1>
+    <div className={styles.container}>
+      <h1 className={styles.oxygenbold}>Book a Table at <span className={styles.resName}>{name}</span></h1>
       <form onSubmit={(e) => e.preventDefault()}>
         <label>Name:</label>
         <input
@@ -164,7 +162,7 @@ const BookingPage = () => {
           {availableCapacity > 0 ? (
             <>
               <p>Available Capacity for {formData.time}: {availableCapacity} people</p>
-              <button type="button" onClick={bookTable}>
+              <button type="button" className={styles.booktableBtn} onClick={bookTable}>
                 Book Table
               </button>
             </>
@@ -174,8 +172,8 @@ const BookingPage = () => {
         </div>
       )}
 
-      {bookingSuccess && <p>Booking successful!</p>}
-      {error && <p>{error}</p>}
+      {bookingSuccess && <p className={styles.success}>Booking successful!</p>}
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 };

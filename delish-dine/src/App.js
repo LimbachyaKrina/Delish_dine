@@ -9,7 +9,8 @@ import Restaurants from "./Pages/Restaurants/Restaurants";
 import RestaurantDetail from "./Pages/RestaurantDetail/RestaurantDetail";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import Profile from "./Pages/Profile/Profile";
-import BookingPage from "./Pages/Booking/BookingPage";
+import BookingPagewithNavbar from "./Pages/Booking/BookingPagewithNavbar.jsx";
+
 import Booking from "./Pages/Booking/Booking";
 // import BookList from "./Components/BookList/BookList";
 import Bill from "./Pages/Bill/Bill"
@@ -32,9 +33,9 @@ export default function App() {
           element={<RestaurantDetail></RestaurantDetail>}
         />
         {/* <Route path="/booking/:name/:id" element={<Booking></Booking>} /> */}
-        <Route path="/about-us" element={<AboutUs></AboutUs>}/>
+        <Route path="/about-us/:id" element={<AboutUs></AboutUs>}/>
         <Route path="/profile/:id" element={<Profile></Profile>}/>
-        <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
+        <Route path="/book/:name/:id" element={<BookingPagewithNavbar />} />
         <Route path="/bookings/:id" element={<Booking />} />
         <Route path="/billing/:id" element={<Bill />} />
       </Routes>
