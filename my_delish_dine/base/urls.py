@@ -14,10 +14,11 @@ from .views import (
     remove_dish,
     update_quantity,
     get_images_for_restaurants,
-    get_user_by_id,get_restaurants,
-    get_restaurant_by_name,
+    get_user_by_id,
     check_availability,
     get_bookings,
+    update_orders,
+    update_user,
 )
 
 # ,send_message
@@ -52,5 +53,7 @@ urlpatterns = [
     path("check_availability/", check_availability, name="check_availability"),
     path('book_please/', book_please, name='book_please'),
     path('api/get_bookings/<str:restaurant_name>/', get_bookings, name='get_bookings'),
+    path("update_orders/", update_orders, name="update_orders"),
+    path("update_user/", update_user, name="update_user")
 ]
 

@@ -12,6 +12,7 @@ import Profile from "./Pages/Profile/Profile";
 import BookingPage from "./Pages/Booking/BookingPage";
 import Booking from "./Pages/Booking/Booking";
 // import BookList from "./Components/BookList/BookList";
+import Bill from "./Pages/Bill/Bill"
 export default function App() {
   return (
     <BrowserRouter>
@@ -32,9 +33,10 @@ export default function App() {
         />
         {/* <Route path="/booking/:name/:id" element={<Booking></Booking>} /> */}
         <Route path="/about-us" element={<AboutUs></AboutUs>}/>
-        <Route path="/profile" element={<Profile></Profile>}/>
+        <Route path="/profile/:id" element={<Profile></Profile>}/>
         <Route path="/book/:restaurantName/:userId" element={<BookingPage />} />
         <Route path="/bookings/:id" element={<Booking />} />
+        <Route path="/billing/:id" element={<Bill />} />
       </Routes>
     </BrowserRouter>
   );

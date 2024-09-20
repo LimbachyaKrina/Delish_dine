@@ -54,7 +54,7 @@ const Navbar = () => {
           </Link>          
         </div>
         <div className="user-profile">
-        <Link to="/profile" className="nav-link ">
+        <Link to={`/profile/${id}`} className="nav-link ">
           <FontAwesomeIcon icon={faUser} className="fa-user" size="lg" color='#fff'/>
           <span className="icon-text" >Profile</span>
         </Link>
