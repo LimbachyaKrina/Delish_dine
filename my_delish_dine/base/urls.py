@@ -19,6 +19,8 @@ from .views import (
     get_bookings,
     update_orders,
     update_user,
+    get_cart_conf_ord,
+    get_bookings
 )
 
 # ,send_message
@@ -54,6 +56,8 @@ urlpatterns = [
     path('book_please/', book_please, name='book_please'),
     path('api/get_bookings/<str:restaurant_name>/', get_bookings, name='get_bookings'),
     path("update_orders/", update_orders, name="update_orders"),
-    path("update_user/", update_user, name="update_user")
+    path("update_user/", update_user, name="update_user"),
+    path("get_bookings/", get_bookings, name="get_bookings"),
+    path("get_cart_conf_ord/", get_cart_conf_ord, name="get_cart_conf_ord")
 ]
 

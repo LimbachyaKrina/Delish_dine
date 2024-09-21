@@ -56,10 +56,11 @@
   padding: 12px 28px;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
+  background-color: #3c763d;
 }
 
 #cart-btn {
-  background-color: #40ba37;
+  background-color: #3c763d !important;
   color: white;
   border: none;
 }
@@ -81,7 +82,7 @@
 
 /* Place Order Button */
 .btn-order {
-  background-color: #40ba37; /* Soft green */
+  background-color: #3c763d; /* Soft green */
   color: white;
   border: none;
 }
@@ -92,7 +93,7 @@
 
 /* Clear Button */
 .btn-clear {
-  background-color: #ff4d4d; /* Soft red */
+  background-color: #982B1C; /* Soft red */
   color: white;
   border: none;
 }

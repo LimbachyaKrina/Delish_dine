@@ -5,14 +5,14 @@ import "./CartPage.css";
 const CartPage = () => {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { id } = useParams();
 
+  
 
   useEffect(() => {
     const fetchCartData = async () => {
       try {
-        setLoading(true);
+        
         const res = await fetch("http://localhost:8000/getCart/", {
           method: "POST",
           headers: {
@@ -31,7 +31,7 @@ const CartPage = () => {
       } catch (error) {
         console.error("Error fetching cart data:", error);
       } finally {
-        setLoading(false);
+        
       }
     };
 
@@ -107,9 +107,7 @@ const CartPage = () => {
     return cartData.reduce((acc, item) => acc + item.price * item.quantity, 0);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  
 
   if (cartData.length === 0) {
     return (
@@ -197,7 +195,7 @@ const CartPage = () => {
             <button className="btn btn-clear" onClick={handleClearCart}>
               Clear
             </button>
-            <button className="btn btn-order" onClick={handlePlaceOrder}>
+            <button className="btn btn-order" onClick={handlePlaceOrder} >
               Place Order
             </button>
           </div>

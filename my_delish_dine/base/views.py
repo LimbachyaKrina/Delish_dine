@@ -793,3 +793,54 @@ def update_user(request):
             return JsonResponse({"success":True,"user_details":new_details,"message":"Successfully changed!!!!"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
+
+@csrf_exempt
+@api_view(["POST"])
+def get_cart_conf_ord(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data["id"]
+            
+            # Find the document for the user
+            user_cart = carts.find_one({"user_id": user_id})
+            
+            if user_cart and "conf_orders" in user_cart:
+                user_cart_conf_ord = user_cart["conf_orders"]
+            else:
+                user_cart_conf_ord = []
+            print(user_cart_conf_ord)
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Confirmed orders retrieved successfully",
+                    "cart": user_cart_conf_ord
+                },
+                status=200,
+            )
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        
+@csrf_exempt
+@api_view(["POST"])
+def get_bookings(request):
+    if request.method=="POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data["id"]
+            user_bookings = bookings_collection.find({"user_id":user_id},{"_id":0})
+            if user_bookings:
+                user_bookings = list(user_bookings)
+            else:
+                user_bookings = []
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Fetched successfully!!",
+                    "bookings": user_bookings
+                },
+                status=200,
+            )
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)},status=500)
