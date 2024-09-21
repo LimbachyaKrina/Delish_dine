@@ -9,6 +9,7 @@ const RestaurantsList = (props) => {
   const [selectedRating, setSelectedRating] = useState(0);
   const navigate = useNavigate();
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleCardClick = (name) => {
     console.log(`/restaurants/${name}/${id}/`);
@@ -20,14 +21,22 @@ const RestaurantsList = (props) => {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/restaurants/")
-      .then((response) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/restaurants/");
         setRestaurants(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching restaurants:", error);
-      });
+      }
+    };
+
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      fetchData();
+      setIsLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const renderStars = (rating) => {
@@ -59,6 +68,15 @@ const RestaurantsList = (props) => {
         (restaurant) => Math.floor(restaurant.Ratings) === selectedRating
       )
     : restaurants;
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loader}></div>
+        <p>Loading restaurants...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.mainDiv}>

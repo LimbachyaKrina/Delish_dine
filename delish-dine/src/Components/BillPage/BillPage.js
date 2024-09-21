@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./BillPage.css";
 
 // Constants for GST and Tax Rates
@@ -13,7 +13,10 @@ const BillingPage = () => {
   const [gstAmount, setGstAmount] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
+  
   useEffect(() => {
     const fetchCartData = async () => {
       try {
@@ -80,6 +83,8 @@ const BillingPage = () => {
 
       if (data.success) {
         alert("Orders updated successfully!");
+        navigate(`/home/${id}`)
+        
       } else {
         alert("Failed to update orders: " + data.error);
       }
@@ -137,7 +142,7 @@ const BillingPage = () => {
           </h3>
         </div>
         <div className="billing-actions">
-          <button className="btn btn-order" onClick={handlePlaceOrder}>
+          <button className="btn btn-order" onClick={handlePlaceOrder} style={{color:"#3c763d"}}>
             Confirm Order
           </button>
         </div>

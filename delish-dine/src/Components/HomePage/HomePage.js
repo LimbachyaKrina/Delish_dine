@@ -7,7 +7,9 @@ import styles from "./HomePage.module.css"; // Import the module CSS
 export default function HomePage() {
   const { id } = useParams();
   const [userName, setUserName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
